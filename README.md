@@ -10,7 +10,7 @@ This turborepo uses [npm](https://www.npmjs.com/) as a package manager. It inclu
 
 - `docs`: a [Next.js](https://nextjs.org/) app
 - `web`: another [Next.js](https://nextjs.org/) app
-- `api`: A api point
+- `api`: An api point
 - `ui`: a stub React component library shared by both `web` and `docs` applications
 - `Tailwindcss`: For taiwlind.config
 - `eslint-config-custom`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
