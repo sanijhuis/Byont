@@ -1,5 +1,17 @@
+'use client';
 
+import { useState } from "react"
 export default function Login() {
+
+  let [currentForm, setCurrentForm] = useState('');
+  const toggleFunction = () => {
+    if (currentForm === 'login') {
+      setCurrentForm('register');
+    } else {
+      setCurrentForm('login');
+     }
+  }
+
   return (
     //main container
     <div className="flex justify-center items-center h-screen bg-zinc-900">
@@ -15,18 +27,19 @@ export default function Login() {
       </section>
       <section className="m-auto flex flex-row">
         <div className="shadow-lg rounded-md p-20">
-          <p className="text-center text-xl text-white">Login</p>
+          <p className="text-center text-xl text-white">{currentForm === "login" ? <span>Register</span> : <span>Login</span>}</p>
           <hr></hr>
           <form className="flex flex-col">
+            <input type="email" placeholder="Email" className="p-2 m-2 rounded-md" style={{display: currentForm == 'login' ? 'flex' : 'none'}} />
             <input type="text" placeholder="Username" className="p-2 m-2 rounded-md" />
             <input type="password" placeholder="Password" className="p-2 m-2 rounded-md" />
-            <button type="submit" className=" shadow-xl bg-lime-300 rounded-lg p-1">Login</button>
+            <input type="password" placeholder="re-enter password" className="p-2 m-2 rounded-md" style={{display: currentForm == 'login' ? 'flex' : 'none'}} />
+            <button type="submit" className=" shadow-xl bg-lime-300 rounded-lg p-1">{currentForm === 'login' ? <span>Register</span> : <span>Login</span>}</button>
           </form>
           <div className="flex justify-center">
-          <p className="text-white">Don't have an account? <span className="hover:underline hover:cursor-pointer text-indigo-800">Register here</span></p>
-          
-          </div>
+          <p className="text-white">Don't have an account?<span className="hover:underline hover:cursor-pointer text-indigo-800" onClick={toggleFunction}>{currentForm === "login" ? <span> Login here!</span> : <span> Register here!</span>}</span></p>
 
+          </div>
         </div>
       </section>
     </div>
