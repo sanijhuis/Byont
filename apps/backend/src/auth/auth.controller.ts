@@ -4,8 +4,15 @@ import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService) { }
 
+
+  /**
+ * Callback function for GitHub authentication.
+ * Uses the AuthGuard to ensure that only authenticated requests are processed.
+ * Retrieves the user object from the request and generates a JWT token using the user's id and username.
+ * Returns the JWT token as a response.
+ */
   @Get('callback')
   @UseGuards(AuthGuard('github'))
   async authCallback(@Req() req) {
