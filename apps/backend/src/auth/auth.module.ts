@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { GithubStrategy } from './auth.strategy';
+import { GithubStrategy, JwtStrategy } from './auth.strategy';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JwtStrategy } from './auth.strategy';
 
 @Module({
   controllers: [AuthController],
@@ -20,4 +19,4 @@ import { JwtStrategy } from './auth.strategy';
   ],
   providers: [GithubStrategy, JwtStrategy],
 })
-export class AuthModule {}
+export class AuthModule { }

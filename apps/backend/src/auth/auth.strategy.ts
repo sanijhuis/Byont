@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-github';
-import { ExtractJwt, Strategy as PassportJwtStrategy } from 'passport-jwt';
+import { ExtractJwt, Strategy as PassportJwtStrategy } from 'passport-jwt'
+
+
 
 /**
  * Passport strategy that authenticates users using GitHub's OAuth 2.0 API.
@@ -13,11 +15,12 @@ import { ExtractJwt, Strategy as PassportJwtStrategy } from 'passport-jwt';
  */
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
+
   constructor(configService: ConfigService) {
     super({
-      clientID: configService.get<string>('GITHUB_CLIENT_ID'),
-      clientSecret: configService.get<string>('GITHUB_CLIENT_SECRET'),
-      callbackURL: 'http://localhost:4000/auth/callback',
+      clientID: configService.get('GITHUB_CLIENT_ID'),
+      clientSecret: configService.get('GITHUB_CLIENT_SECRET'),
+      callbackURL: 'http://localhost:3000/auth/callback',
       scope: ['public_profile'],
     });
   }
@@ -39,7 +42,7 @@ export class JwtStrategy extends PassportStrategy(PassportJwtStrategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET'),
+      secretOrKey: configService.get('JWT_SECRET'),
     });
   }
 
