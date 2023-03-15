@@ -1,5 +1,6 @@
 'use client';
 
+import Link from "next/link";
 import { useState } from "react"
 export default function Login() {
 
@@ -13,7 +14,6 @@ export default function Login() {
   }
 
   return (
-    //main container
     <div className="flex justify-center items-center h-screen bg-zinc-900">
       <section className="m-auto">
         <div className="">
@@ -34,7 +34,7 @@ export default function Login() {
             <input type="text" placeholder="Username" className="p-2 m-2 rounded-md" />
             <input type="password" placeholder="Password" className="p-2 m-2 rounded-md" />
             <input type="password" placeholder="re-enter password" className="p-2 m-2 rounded-md" style={{display: currentForm == 'login' ? 'flex' : 'none'}} />
-            <button type="submit" className=" shadow-xl bg-lime-300 rounded-lg p-1">{currentForm === 'login' ? <span>Register</span> : <span>Login</span>}</button>
+            <Link href={'/dashboard'} type="submit" className="text-center shadow-xl bg-lime-300 rounded-lg p-1" >{currentForm === 'login' ? <span>Register</span> : <span>Login</span>}</Link>
           </form>
           <div className="flex justify-center">
           <p className="text-white">Don't have an account?<span className="hover:underline hover:cursor-pointer text-indigo-800" onClick={toggleFunction}>{currentForm === "login" ? <span> Login here!</span> : <span> Register here!</span>}</span></p>
