@@ -17,7 +17,7 @@ contract HelloWorld{
     // Create constructor here
     constructor(uint _guessNumber){
         // owner address in a field
-        owner = payable(msg.sender);
+        owner = payable(msg.sender)
         myAnswerNumber = _guessNumber;
     }
 
