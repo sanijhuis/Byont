@@ -20,6 +20,10 @@
   "engines": {
     "node": ">=14.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@nestjs/jwt": "^10.0.2",
+    "@nestjs/swagger": "^6.2.1",
+    "passport-jwt": "^4.0.1"
+  },
   "packageManager": "npm@8.4.1"
 }
