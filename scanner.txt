@@ -1,0 +1,9 @@
+mythril.interfaces.cli [ERROR]: Solc experienced a fatal error.
+
+ParserError: Expected ';' but got identifier
+  --> smart_contract.sol:21:9:
+   |
+21 |         myAnswerNumber = _guessNumber;
+   |         ^^^^^^^^^^^^^^
+
+

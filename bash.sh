@@ -1,5 +1,4 @@
 #!/bin/bash
 
-output=output_file.txt
+myth analyze smart_contract.sol 2>&1 | tee scanner.txt
 
-myth analyze smart_contract.sol > $output

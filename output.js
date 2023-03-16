@@ -6,7 +6,7 @@ exec('./bash.sh', (error, stdout, stderr) => {
     return;
   }
   if (stderr) {
-    console.eror(`stderr: ${stderr}`);
+    console.error(`stderr: ${stderr}`);
     return;
   }
   console.log(`stdout: ${stdout}`);
