@@ -1,7 +1,9 @@
 'use client';
 
 import Link from "next/link";
+import React from "react";
 import { useState } from "react"
+import { BsGithub } from "react-icons/bs";
 export default function Login() {
 
   let [currentForm, setCurrentForm] = useState('');
@@ -36,9 +38,12 @@ export default function Login() {
             <input type="password" placeholder="re-enter password" className="p-2 m-2 rounded-md" style={{display: currentForm == 'login' ? 'flex' : 'none'}} />
             <Link href={'/dashboard'} type="submit" className="text-center shadow-xl bg-lime-300 rounded-lg p-1" >{currentForm === 'login' ? <span>Register</span> : <span>Login</span>}</Link>
           </form>
-          <div className="flex justify-center">
+          <div className="flex justify-center flex-col">
           <p className="text-white">Don't have an account?<span className="hover:underline hover:cursor-pointer text-indigo-800" onClick={toggleFunction}>{currentForm === "login" ? <span> Login here!</span> : <span> Register here!</span>}</span></p>
-
+          <p className="mt-5 text-white">other signup methods</p>
+          <hr></hr>
+          <h1 className="fa fa-github text-4xl text-white mt-2"><Link href={'http://localhost:3001/auth'}><BsGithub /></Link></h1>
+          <p className="text-white">github</p>
           </div>
         </div>
       </section>
