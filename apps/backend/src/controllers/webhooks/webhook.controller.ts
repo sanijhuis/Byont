@@ -1,6 +1,7 @@
 import { Controller, Post, Headers, Body } from '@nestjs/common';
 import { createHmac } from 'crypto';
 import { Webhooks } from '@octokit/webhooks';
+require('dotenv').config();
 
 interface WebhookBody {
     repository: {
@@ -18,10 +19,14 @@ export class WebhookController {
         @Headers('x-hub-signature') signature: string,
         @Body() body: WebhookBody,
     ): string {
-        const secretStr = 'INSERT GITHUB SECRET'
+        console.log(process.env);
+        const secretStr = "";
         const webhooks = new Webhooks({
             secret: secretStr,
         });
+        webhooks.on('push', () => {
+            console.log("dit word bereikt!")
+        })
         // Generate a signature for the request body using the secret
         const hmac = createHmac('sha1', secretStr);
         const payload = JSON.stringify(body);

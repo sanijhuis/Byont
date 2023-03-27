@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { WebhookController } from './controllers/webhooks/webHookController';
+import { WebhookController } from './controllers/webhooks/webhook.controller';
 
 
 @Module({
