@@ -1,24 +1,24 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Redirect, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { JwtService } from '@nestjs/jwt';
+import { AuthService } from './auth.service';
+
 
 @Controller('auth')
 export class AuthController {
-  constructor(private jwtService: JwtService) { }
+  constructor(private authService: AuthService) { }
 
+  @Get('login')
+  @UseGuards(AuthGuard('github'))
+  githubLogin() {
+    // Initiates the GitHub OAuth2 process
+  }
 
-  /**
- * Callback function for GitHub authentication.
- * Uses the AuthGuard to ensure that only authenticated requests are processed.
- * Retrieves the user object from the request and generates a JWT token using the user's id and username.
- * Returns the JWT token as a response.
- */
   @Get('callback')
   @UseGuards(AuthGuard('github'))
   async authCallback(@Req() req) {
     const user = req.user;
-    const payload = { sub: user.id, username: user.username };
-    return { accessToken: this.jwtService.sign(payload) };
+    const accessToken = await this.authService.generateJwtToken(user);
+    return { accessToken };
   }
 
   @Get()
@@ -26,4 +26,13 @@ export class AuthController {
   async login() {
     //
   }
+
+  //Temp function
+  @Get('protected')
+  @UseGuards(AuthGuard('jwt'))
+  async getProtectedData(@Req() req) {
+    // Your protected route logic here, e.g., return some data
+    return { data: 'This is protected data' };
+  }
 }
+

@@ -9,8 +9,8 @@ generator client {
 
 model User {
   id        Int      @id @default(autoincrement())
+  githubId  Int      @unique
   email     String   @unique
-  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   repos     Repo[]
@@ -20,4 +20,5 @@ model Repo {
   id     Int  @id
   userId Int
   user   User @relation(fields: [userId], references: [id])
+  scanOutput Json?
 }
