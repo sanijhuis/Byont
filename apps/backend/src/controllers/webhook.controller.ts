@@ -1,7 +1,7 @@
 import { Controller, Post, Headers, Body } from '@nestjs/common';
 import { createHmac } from 'crypto';
 import { Webhooks } from '@octokit/webhooks';
-require('dotenv').config();
+import { ConfigService } from '@nestjs/config';
 
 interface WebhookBody {
     repository: {
@@ -19,8 +19,7 @@ export class WebhookController {
         @Headers('x-hub-signature') signature: string,
         @Body() body: WebhookBody,
     ): string {
-        console.log(process.env);
-        const secretStr = "";
+        const secretStr = "thisismylittlesecret";
         const webhooks = new Webhooks({
             secret: secretStr,
         });

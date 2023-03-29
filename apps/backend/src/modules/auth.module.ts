@@ -27,11 +27,11 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { GithubStrategy } from './github.strategy';
-import { AuthService } from './auth.service';
-import { UserModule } from '../modules/user.module';
-import { AuthController } from './auth.controller';
-import { JwtStrategy } from './auth.strategy';
+import { GithubStrategy } from '../auth/github.strategy';
+import { AuthService } from '../services/auth.service';
+import { UserModule } from './user.module';
+import { AuthController } from '../auth/auth.controller';
+import { JwtStrategy } from '../auth/jwt.strategy';
 
 @Module({
   imports: [
