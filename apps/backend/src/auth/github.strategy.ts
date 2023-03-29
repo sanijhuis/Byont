@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-github2';
@@ -6,6 +6,7 @@ import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
+    private readonly logger = new Logger();
     constructor(configService: ConfigService, private authService: AuthService) {
         super({
             clientID: configService.get('GITHUB_CLIENT_ID'),
@@ -16,9 +17,9 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     }
 
     async validate(accessToken: string, _refreshToken: string, profile: any) {
-        console.log(profile);
+        this.logger.log('Profile', profile);
         const email = profile._json.email;
-        console.log(email);
+        this.logger.log('Email', email);
         return this.authService.validateUserFromGithub({
             id: profile._json.id,
             email: profile._json.email,

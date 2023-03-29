@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
     private prisma: PrismaClient;
-
+    private readonly logger = new Logger()
     constructor() {
         this.prisma = new PrismaClient();
     }
 
     async findOrCreate(user: { email: string, id: number }) {
-        console.log('User: ', user);
+        this.logger.log('User: ', user);
         if (user.email == undefined) {
             return false;
         }
