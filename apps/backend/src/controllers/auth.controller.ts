@@ -28,9 +28,10 @@ export class AuthController {
     // Set the JWT in an HTTP-only cookie
     res.cookie('access_token', accessToken, {
       httpOnly: true,
-      //secure:, // Set to true only in production environment
-      sameSite: 'strict', 
-      maxAge: 60 * 60 * 1000, 
+      secure: false, // Set to true only in production environment
+      signed: true,
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 1000,
     });
 
     return { accessToken };
@@ -46,6 +47,11 @@ export class AuthController {
   @Get('protected')
   @UseGuards(AuthGuard('jwt'))
   async getProtectedData(@Req() req) {
+    // Cookies that have not been signed
+    console.log('Cookies: ', req.cookies)
+
+    // Cookies that have been signed
+    console.log('Signed Cookies: ', req.signedCookies)
     return { data: 'This is protected data' };
   }
 }
