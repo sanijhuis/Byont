@@ -1,14 +1,13 @@
 import React from 'react'
 import TopBar from './topbar'
+import FileInput from './fileInput'
 function page() {
   return (
-    <div className='m-5 p-5 ml-10 mr-10'>
+    <div className='p-5 bg-zinc-900 h-screen'>
       <TopBar/>
-      <div className='flex justify-between mb-20'>
-        <div>file input section</div>
-        <div>scanner settings</div>
-      </div>
-      <div>outputs section</div>
+      <hr></hr>
+      <FileInput />
+      <div className='text-white'>outputs section</div>
     </div>
   )
 }
