@@ -25,7 +25,7 @@ export class WebhookController {
             secret: secretStr,
         });
         webhooks.on('push', () => {
-            this.logger.log("dit word bereikt!")
+
         })
         // Generate a signature for the request body using the secret
         const hmac = createHmac('sha1', secretStr);

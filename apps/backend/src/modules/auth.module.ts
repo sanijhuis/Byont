@@ -30,7 +30,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GithubStrategy } from '../auth/github.strategy';
 import { AuthService } from '../services/auth.service';
 import { UserModule } from './user.module';
-import { AuthController } from '../auth/auth.controller';
+import { AuthController } from '../controllers/auth.controller';
 import { JwtStrategy } from '../auth/jwt.strategy';
 
 @Module({
@@ -43,7 +43,7 @@ import { JwtStrategy } from '../auth/jwt.strategy';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secretOrPrivateKey: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '60s' },
       }),
     }),
   ],

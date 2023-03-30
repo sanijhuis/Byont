@@ -1,4 +1,5 @@
-import { Controller, Get, Redirect, Req, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
+import { BadRequestException, Controller, Get, Redirect, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../services/auth.service';
 
@@ -16,9 +17,22 @@ export class AuthController {
 
   @Get('callback')
   @UseGuards(AuthGuard('github'))
-  async authCallback(@Req() req) {
+  async authCallback(@Req() req, @Res({ passthrough: true }) res: Response) {
     const user = req.user;
+
+    if (!user) {
+      throw new BadRequestException('User object is missing in the request');
+    }
     const accessToken = await this.authService.generateJwtToken(user);
+
+    // Set the JWT in an HTTP-only cookie
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      //secure:, // Set to true only in production environment
+      sameSite: 'strict', 
+      maxAge: 60 * 60 * 1000, 
+    });
+
     return { accessToken };
   }
 
@@ -28,7 +42,7 @@ export class AuthController {
     //
   }
 
-  //Temp function t otest Guards
+  //Temp function to test Guards
   @Get('protected')
   @UseGuards(AuthGuard('jwt'))
   async getProtectedData(@Req() req) {

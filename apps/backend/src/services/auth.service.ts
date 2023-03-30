@@ -12,7 +12,6 @@ export class AuthService {
         private readonly configService: ConfigService
     ) {
         const jwtSecret = this.configService.get('JWT_SECRET');
-        this.logger.log('JWT_SECRET:', jwtSecret);
     }
 
     async validateUserFromGithub(profile: any) {
@@ -28,8 +27,9 @@ export class AuthService {
 
     async generateJwtToken(user: { id: number; username: string; email: string }) {
         const jwtSecret = this.configService.get('JWT_SECRET');
-        this.logger.log(jwtSecret);
+
+
         const payload = { sub: user.id, username: user.username, email: user.email };
-        return this.jwtService.sign(payload, { secret: jwtSecret });
+        return this.jwtService.sign(payload, { secret: jwtSecret, expiresIn: '1h' });
     }
 }

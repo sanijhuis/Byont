@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt'
@@ -11,17 +11,27 @@ import { ExtractJwt, Strategy } from 'passport-jwt'
  */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  private readonly logger = new Logger()
   constructor(configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req) => {
+          console.log('Request cookies:', req?.cookies); // Log the cookies
+          const token = req?.cookies?.access_token;
+          console.log('Extracted JWT:', token); // Log the extracted JWT
+          return token;
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: configService.get('JWT_SECRET'),
     });
   }
 
   async validate(payload: any) {
-    this.logger.log('Payload', payload);
+    console.log('Payload:', payload); // Log the payload
+    if (!payload.exp) {
+      throw new UnauthorizedException('Token without expiration is not allowed');
+    }
+
     return { id: payload.sub, username: payload.username, email: payload.email };
   }
 }
