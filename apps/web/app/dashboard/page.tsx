@@ -1,15 +1,15 @@
 import React from 'react'
 import TopBar from './topbar'
 import FileInput from './fileInput'
-import Hero from './Hero'
 import Scanners from './scanners'
+import FileOutput from './fileOutput'
 function page() {
   return (
-    <div className='p-5 bg-zinc-900 h-screen'>
+    <div className='p-5 bg-zinc-900'>
       <TopBar/>
       <Scanners />
       <FileInput />
-      <div className='text-white'>outputs section</div>
+      <FileOutput />
     </div>
   )
 }
