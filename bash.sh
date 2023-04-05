@@ -1,4 +1,5 @@
 #!/bin/bash
-
 mkdir ScannerResults
-myth analyze smart_contract.sol 2>&1 | tee ScannerResults/scanner.json
+echo Enter the name of the solidity file:
+read solidity_filename
+myth analyze $solidity_filename 2>&1 | tee ScannerResults/scanner.txt
