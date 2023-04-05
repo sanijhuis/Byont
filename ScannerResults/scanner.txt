@@ -1,0 +1,27 @@
+==== Unchecked return value from external call. ====
+SWC ID: 104
+Severity: Medium
+Contract: SecureAuction
+Function name: withdraw()
+PC address: 557
+Estimated Gas Usage: 6915 - 61576
+The return value of a message call is not checked.
+External calls return a boolean value. If the callee halts with an exception, 'false' is returned and execution continues in the caller. The caller should check whether an exception happened and react accordingly to avoid unexpected behavior. For example it is often desirable to wrap external calls in require() so the transaction is reverted if the call fails.
+--------------------
+In file: auction.sol:51
+
+msg.sender.send(refund)
+
+--------------------
+Initial State:
+
+Account: [CREATOR], balance: 0x0, nonce:0, storage:{}
+Account: [ATTACKER], balance: 0x0, nonce:0, storage:{}
+
+Transaction Sequence:
+
+Caller: [CREATOR], calldata: , decoded_data: , value: 0x0
+Caller: [ATTACKER], function: withdraw(), txdata: 0x3ccfd60b, value: 0x0
+Caller: [ATTACKER], function: withdraw(), txdata: 0x3ccfd60b, value: 0x0
+
+
