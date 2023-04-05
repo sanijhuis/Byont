@@ -8,7 +8,7 @@ const rl = readline.createInterface({
 });
 
 // ask for user input
-rl.question('What is your name? ', (name) => {
+rl.question('What is your contract name?  ', (name) => {
   // run the shell script and pass the user's name as an argument
   exec(`./bash.sh ${name}`, (error, stdout, stderr) => {
     if (error) {

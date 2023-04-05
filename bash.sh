@@ -1,3 +1,4 @@
 #!/bin/bash
 
-echo "Hello, $1!"
+mkdir ScannerResults
+myth analyze $1 2>&1 | tee ScannerResults/scanner.txt
