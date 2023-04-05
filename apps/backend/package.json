@@ -28,6 +28,7 @@
     "@octokit/types": "^9.0.0",
     "@octokit/webhooks": "^10.7.0",
     "@prisma/client": "^4.11.0",
+    "class-validator": "^0.14.0",
     "passport": "^0.6.0",
     "passport-github": "^1.1.0",
     "passport-github2": "^0.1.12",

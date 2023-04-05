@@ -2,10 +2,9 @@ import { Controller, Get, Redirect, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../services/auth.service';
 
-
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   @Get('login')
   @UseGuards(AuthGuard('github'))
@@ -35,4 +34,3 @@ export class AuthController {
     return { data: 'This is protected data' };
   }
 }
-
