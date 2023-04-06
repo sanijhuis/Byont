@@ -1,0 +1,71 @@
+.link_primary {
+  background: linear-gradient(122.65deg, #002fd3 -14.81%, #00e0ff 160.26%),
+    #2f80ed;
+  border: none;
+  border-radius: 40px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 190px;
+  width: 160px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+  padding-bottom: 2px;
+
+  span {
+    visibility: hidden;
+  }
+
+  &:hover span {
+    animation: scale 0.75s linear;
+    background-color: #f5f3ff;
+    border-radius: 50%;
+    position: absolute;
+    opacity: 0.5;
+    transform: scale(0);
+    visibility: visible;
+  }
+}
+
+.link_secondary {
+  background: #fff;
+  border: none;
+  border-radius: 10px;
+  color: #000;
+  cursor: pointer;
+  font-size: 16px;
+  width: 153px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+  padding-bottom: 2px;
+
+  span {
+    visibility: hidden;
+  }
+
+  &:hover span {
+    animation: scale 0.75s linear;
+    background-color: #c0c0c0;
+    border-radius: 50%;
+    position: absolute;
+    opacity: 0.5;
+    transform: scale(0);
+    visibility: visible;
+  }
+}
+
+@keyframes scale {
+  to {
+    opacity: 0;
+    transform: scale(4);
+  }
+}

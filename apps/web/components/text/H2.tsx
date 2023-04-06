@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-interface ParagraphProps {
+interface H2Props {
   children: React.ReactNode;
   className?: string;
   size: "sm" | "md" | "lg";
@@ -8,24 +8,18 @@ interface ParagraphProps {
   fontWeight: "light" | "normal" | "medium";
 }
 
-const Paragraph = ({
-  children,
-  className,
-  size,
-  color,
-  fontWeight,
-}: ParagraphProps) => {
+const H2 = ({ children, className, color, size, fontWeight }: H2Props) => {
   return (
-    <p
-      className={clsx("", className, {
+    <h2
+      className={clsx("text-45 font-bold leading-45", className, {
         // Size
-        "text-": size === "sm",
-        "text-16 md:text-18": size === "md",
-        "text-21": size === "lg",
+        "text-30": size === "sm",
+        "text-37": size === "md",
+        "text-45": size === "lg",
         // Color
         "text-black": color === "black",
         "text-gray": color === "gray",
-        "text-whites": color === "white",
+        "text-white": color === "white",
         // Font weights
         "font-light": fontWeight === "light",
         "font-normal": fontWeight === "normal",
@@ -33,7 +27,8 @@ const Paragraph = ({
       })}
     >
       {children}
-    </p>
+    </h2>
   );
 };
-export default Paragraph;
+
+export default H2;

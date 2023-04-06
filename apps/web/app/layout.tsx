@@ -1,5 +1,9 @@
+import Footer from "../components/footer/footer";
+import Header from "../components/header/header";
 import "../styles/global.css";
-import React from "react";
+import { Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Next.js",
@@ -12,8 +16,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html className={inter.className} lang="en">
+      <body className="bg-black">
+        <Header />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

@@ -21,9 +21,15 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^3.7.2",
     "@nestjs/jwt": "^10.0.2",
     "@nestjs/swagger": "^6.2.1",
-    "passport-jwt": "^4.0.1"
+    "clsx": "^1.2.1",
+    "framer-motion": "^10.10.0",
+    "passport-jwt": "^4.0.1",
+    "prettier-plugin-tailwindcss": "^0.2.7",
+    "react-hook-form": "^7.43.9",
+    "sass": "^1.60.0"
   },
   "packageManager": "npm@8.4.1"
 }
