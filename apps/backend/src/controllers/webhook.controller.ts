@@ -1,6 +1,7 @@
-import { Controller, Post, Headers, Body } from '@nestjs/common';
+import { Controller, Post, Headers, Body, Logger } from '@nestjs/common';
 import { createHmac } from 'crypto';
 import { Webhooks } from '@octokit/webhooks';
+import { ConfigService } from '@nestjs/config';
 
 interface WebhookBody {
     repository: {
@@ -10,6 +11,7 @@ interface WebhookBody {
 
 @Controller('webhook')
 export class WebhookController {
+    private readonly logger = new Logger()
 
     @Post()
     handleWebhook(
@@ -18,10 +20,13 @@ export class WebhookController {
         @Headers('x-hub-signature') signature: string,
         @Body() body: WebhookBody,
     ): string {
-        const secretStr = 'INSERT GITHUB SECRET'
+        const secretStr = "thisismylittlesecret";
         const webhooks = new Webhooks({
             secret: secretStr,
         });
+        webhooks.on('push', () => {
+
+        })
         // Generate a signature for the request body using the secret
         const hmac = createHmac('sha1', secretStr);
         const payload = JSON.stringify(body);
@@ -35,11 +40,11 @@ export class WebhookController {
 
 
         // Log the event type and repository name for debugging purposes
-        console.log(`Received ${event} event for ${body.repository.name}`);
-        console.log({ signature });
-        console.log({ digest });
-        console.log({ body });
-        console.log(id);
+        this.logger.log(`Received ${event} event for ${body.repository.name}`);
+        this.logger.log({ signature });
+        this.logger.log({ digest });
+        this.logger.log({ body });
+        this.logger.log(id);
 
 
         // Return a 200 OK status code to confirm receipt of the webhook event
