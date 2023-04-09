@@ -7,7 +7,7 @@ const rl = readline.createInterface({
 });
 
 rl.question('What is the name of the shell script? ', (scriptName) => {
-  rl.question('What is your name? ', (name) => {
+  rl.question('What is the name of the .sol file? ', (name) => {
     exec(`./${scriptName} ${name}`, (error, stdout, stderr) => {
       if (error) {
         console.error(`error: ${error.message}`);
