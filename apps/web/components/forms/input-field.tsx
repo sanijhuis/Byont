@@ -1,7 +1,5 @@
 "use client";
 
-import ButtonAnimation from "../button/button-animation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 const InputFile = () => {
@@ -11,32 +9,14 @@ const InputFile = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data: any) => console.log(data);
+  const onSubmit = async (data: any) => {
+    console.log(data);
 
-  const [selectedFile, setSelectedFIle] = useState();
-  const handleFileChange = (e: any) => {
-    if (e.target.value) {
-      setSelectedFIle(e.target.value);
-    }
-    console.log(e.target.value);
+    await fetch("http://localhost:4500/file/upload", {
+      method: "POST",
+      body: data.file[0],
+    });
   };
-
-  async function handleFileUpload(file: File) {
-    try {
-      const res = await fetch("testUrl", {
-        method: "POST",
-        body: file,
-        headers: {
-          "Content-Type": file.type,
-          "content-length": `${file.size}`,
-        },
-      });
-      
-      res.json();
-    } catch (e: any) {
-      console.error(e.message);
-    }
-  }
 
   return (
     <form
@@ -48,7 +28,7 @@ const InputFile = () => {
           className="text-sm file:text-sm block w-full
       text-slate-500 file:mr-4 file:rounded-full
       file:border-0 file:bg-violet-50
-      file:py-1 file:px-3
+      file:px-3 file:py-1
       file:font-semibold file:text-black
       hover:file:bg-violet-100
     "
@@ -56,7 +36,6 @@ const InputFile = () => {
           placeholder="Add a smart contract"
           accept=".sol"
           {...register("file", {})}
-          onChange={() => handleFileChange(event)}
         />
       </label>
 
