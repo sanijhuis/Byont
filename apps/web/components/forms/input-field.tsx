@@ -12,7 +12,7 @@ const InputFile = () => {
   const onSubmit = async (data: any) => {
     console.log(data);
 
-    await fetch("http://localhost:4500/file/upload", {
+    await fetch("http://localhost:3000/file/upload", {
       method: "POST",
       body: data.file[0],
     });
