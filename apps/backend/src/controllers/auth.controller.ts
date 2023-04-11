@@ -1,12 +1,19 @@
 import { Response } from 'express';
-import { BadRequestException, Controller, Get, Redirect, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Redirect,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../services/auth.service';
 
-
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   @Get('login')
   @UseGuards(AuthGuard('github'))
@@ -33,8 +40,8 @@ export class AuthController {
       sameSite: 'strict',
       maxAge: 60 * 60 * 1000,
     });
-
-    return { accessToken };
+    res.redirect('http://localhost:8080/dashboard');
+    // return { accessToken };
   }
 
   @Get()
@@ -48,11 +55,10 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   async getProtectedData(@Req() req) {
     // Cookies that have not been signed
-    console.log('Cookies: ', req.cookies)
+    console.log('Cookies: ', req.cookies);
 
     // Cookies that have been signed
-    console.log('Signed Cookies: ', req.signedCookies)
+    console.log('Signed Cookies: ', req.signedCookies);
     return { data: 'This is protected data' };
   }
 }
-

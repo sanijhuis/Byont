@@ -1,6 +1,7 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
+    "githubId" INTEGER NOT NULL,
     "email" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -12,9 +13,13 @@ CREATE TABLE "User" (
 CREATE TABLE "Repo" (
     "id" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
+    "scanOutput" JSONB,
 
     CONSTRAINT "Repo_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_githubId_key" ON "User"("githubId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
