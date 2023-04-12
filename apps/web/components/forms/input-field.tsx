@@ -11,18 +11,31 @@ const InputFile = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = async (data: any) => {
-    const formData = new FormData();
-    formData.append("contract", data.file[0]);
+  // const onSubmit = async (data: any) => {
+  //   console.log(data.file[0]);
 
-    await fetch("http://localhost:3000/file/upload", {
+  //   await fetch("http://localhost:3000/file/upload", {
+  //     method: "POST",
+  //     // headers: {
+  //     //   Authorization: "Bearer " + Cookies.get("access_token"),
+  //     // },
+  //     body: data.file[0],
+  //   });
+  // };
+
+  const onSubmit = async (data: any) => {
+    console.log(data.file[0]);
+    const file = data.file[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("http://localhost:3000/file/upload", {
       method: "POST",
-      // headers: {
-      //   Authorization: 'Bearer ' + Cookies.get('access_token'),
-      // },
       body: formData,
     });
+
+    console.log(res);
   };
+
   return (
     <form
       className="flex flex-col items-center"
