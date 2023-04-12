@@ -34,10 +34,10 @@ export class AuthController {
 
     // Set the JWT in an HTTP-only cookie
     res.cookie('access_token', accessToken, {
-      httpOnly: true,
+      httpOnly: false,
       secure: false, // Set to true only in production environment
-      signed: true,
-      sameSite: 'strict',
+      signed: false,
+      // sameSite: 'strict',
       maxAge: 60 * 60 * 1000,
     });
     res.redirect('http://localhost:8080/dashboard');

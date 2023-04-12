@@ -1,3 +1,5 @@
+"use client";
+
 import AnimatedTextWord from "../components/animations/AnimatedText";
 import InViewFadeIn from "../components/animations/inview-fade-in";
 import ButtonAnimation from "../components/button/button-animation";

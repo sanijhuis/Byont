@@ -26,8 +26,8 @@ export class FileController {
   //   - fileFilter to check if the uploaded file has a .sol extension
   //     - If the file doesn't have a .sol extension, it returns a BadRequestException with an error message
   //     - Otherwise, it accepts the file for further processing (not implemented yet, should be the scanner)
+  // @UseGuards(AuthGuard('jwt'))
   @Post('upload')
-  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),

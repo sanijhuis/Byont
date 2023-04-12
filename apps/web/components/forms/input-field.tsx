@@ -1,5 +1,7 @@
 "use client";
 
+import Cookies from "js-cookie";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 const InputFile = () => {
@@ -10,14 +12,17 @@ const InputFile = () => {
   } = useForm();
 
   const onSubmit = async (data: any) => {
-    console.log(data);
+    const formData = new FormData();
+    formData.append("contract", data.file[0]);
 
     await fetch("http://localhost:3000/file/upload", {
       method: "POST",
-      body: data.file[0],
+      // headers: {
+      //   Authorization: 'Bearer ' + Cookies.get('access_token'),
+      // },
+      body: formData,
     });
   };
-
   return (
     <form
       className="flex flex-col items-center"
