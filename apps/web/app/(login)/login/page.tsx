@@ -5,7 +5,7 @@ import IconGithub from "../../../public/icons/github";
 
 const Page = () => {
   const signIn = () => {
-    window.location.href = "http://localhost:4500/auth/";
+    window.location.href = "http://localhost:8080/auth/";
   };
 
   return (

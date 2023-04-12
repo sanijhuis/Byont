@@ -1,7 +1,6 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-
 const InputFile = () => {
   const {
     register,
@@ -10,12 +9,17 @@ const InputFile = () => {
   } = useForm();
 
   const onSubmit = async (data: any) => {
-    console.log(data);
 
-    await fetch("http://localhost:4500/file/upload", {
+    console.log(data.file[0]);
+    const file = data.file[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch("http://localhost:8080/analyze", {
       method: "POST",
-      body: data.file[0],
+      body: formData
     });
+
+    console.log(res);
   };
 
   return (
@@ -48,5 +52,4 @@ const InputFile = () => {
     </form>
   );
 };
-
 export default InputFile;
