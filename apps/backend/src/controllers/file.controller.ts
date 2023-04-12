@@ -30,7 +30,7 @@ export class FileController {
 
     const docker = new Docker();
     const container = await docker.createContainer({
-      Image: 'mythril/myth',
+      Image: 'mythril/myth:latest',
       Cmd: ['analyze', `/mnt/${file.filename}`],
       HostConfig: {
         Binds: [`${__dirname}/uploads:/mnt`],
