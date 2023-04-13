@@ -7,6 +7,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as Docker from 'dockerode';
+import { Readable, Writable } from 'stream';
+import path from 'path';
 
 @Controller('file')
 export class FileController {
@@ -26,25 +28,39 @@ export class FileController {
     }),
   )
   async analyzeFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file.filename);
+    try {
+      console.log(file.filename);
 
-    const docker = new Docker();
-    const container = await docker.createContainer({
-      Image: 'mythril/myth:latest',
-      Cmd: ['analyze', `/mnt/${file.filename}`],
-      HostConfig: {
-        Binds: [`${__dirname}/uploads:/mnt`],
-      },
-    });
-    await container.start();
-    const logs = await container.logs({
-      follow: true,
-      stdout: true,
-      stderr: true,
-    });
+      const docker = new Docker();
+      const container = await docker.createContainer({
+        Image: 'mythril/myth:latest',
+        Cmd: ['analyze', `/mnt/${file.filename}`],
 
-    console.log(logs);
+        HostConfig: {
+          Binds: [`${process.cwd()}/uploads:/mnt`],
+        },
+      });
 
-    await container.remove({ force: true });
+      await container.start();
+
+      const logs = await container.logs({
+        follow: true,
+        stdout: true,
+        stderr: true,
+      });
+
+      let logsData = '';
+      logs.pipe(process.stdout);
+      logs.on('data', (data) => {
+        logsData += data;
+      });
+
+      logs.on('end', () => {
+        console.log('Logs:', logsData);
+        container.remove({ force: true });
+      });
+    } catch (err) {
+      console.error('Error creating or starting container:', err);
+    }
   }
 }
