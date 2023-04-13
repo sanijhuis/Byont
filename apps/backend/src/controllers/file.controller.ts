@@ -7,6 +7,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as Docker from 'dockerode';
+import { join } from 'path';
+import { spawn } from 'child_process';
 
 @Controller('file')
 export class FileController {
@@ -26,25 +28,24 @@ export class FileController {
     }),
   )
   async analyzeFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file.filename);
+    const filename = file.filename;
+    const filePath = join(__dirname, '..', 'uploads', filename);
+    
+    const command = `docker run -e FILENAME=${filename} mythril/myth`;
+    const docker = spawn(command, { shell: true });
 
-    const docker = new Docker();
-    const container = await docker.createContainer({
-      Image: 'mythril/myth:latest',
-      Cmd: ['analyze', `/mnt/${file.filename}`],
-      HostConfig: {
-        Binds: [`${__dirname}/uploads:/mnt`],
-      },
-    });
-    await container.start();
-    const logs = await container.logs({
-      follow: true,
-      stdout: true,
-      stderr: true,
+    docker.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`);
     });
 
-    console.log(logs);
+    docker.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+    });
 
-    await container.remove({ force: true });
+    docker.on('close', (code) => {
+      console.log(`child process exited with code ${code}`);
+    });
+
+    return { success: true };
   }
 }

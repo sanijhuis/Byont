@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "@nestjs/jwt": "^10.0.2",
-    "@nestjs/swagger": "^6.2.1"
+    "@nestjs/swagger": "^6.2.1",
+    "dockerode": "^3.3.5"
   },
   "packageManager": "npm@8.4.1"
 }
