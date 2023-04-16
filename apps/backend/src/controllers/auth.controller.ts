@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Post,
   Redirect,
   Req,
   Res,
@@ -13,7 +14,7 @@ import { AuthService } from '../services/auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Get('login')
   @UseGuards(AuthGuard('github'))
@@ -26,7 +27,9 @@ export class AuthController {
   @UseGuards(AuthGuard('github'))
   async authCallback(@Req() req, @Res({ passthrough: true }) res: Response) {
     const user = req.user;
+    console.log(req.user.accessToken)
 
+    console.log(user)
     if (!user) {
       throw new BadRequestException('User object is missing in the request');
     }
@@ -41,7 +44,8 @@ export class AuthController {
       maxAge: 60 * 60 * 1000,
     });
     res.redirect('http://localhost:8080/dashboard');
-    // return { accessToken };
+
+
   }
 
   @Get()
@@ -60,5 +64,20 @@ export class AuthController {
     // Cookies that have been signed
     console.log('Signed Cookies: ', req.signedCookies);
     return { data: 'This is protected data' };
+  }
+
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) res: Response) {
+    // Clear the JWT cookie
+    res.cookie('access_token', '', {
+      httpOnly: false,
+      secure: false, // Set to true only in production environment
+      signed: false,
+      // sameSite: 'strict',
+      maxAge: 0,
+    });
+
+    // Redirect to the home page or login page after logging out
+    res.redirect('http://localhost:8080/');
   }
 }

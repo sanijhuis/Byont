@@ -7,8 +7,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as Docker from 'dockerode';
-import { Readable, Writable } from 'stream';
-import path from 'path';
 
 @Controller('file')
 export class FileController {
