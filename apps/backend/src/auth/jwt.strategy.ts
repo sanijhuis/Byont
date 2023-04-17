@@ -15,9 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req) => {
-          console.log('Request cookies:', req?.cookies); // Log the cookies
-          const token = req?.signedCookies?.access_token;
-          console.log('Extracted JWT:', token); // Log the extracted JWT
+          const token = req?.signedCookies?.JWT;
           return token;
         },
       ]),
@@ -31,6 +29,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!payload.exp) {
       throw new UnauthorizedException('Token without expiration is not allowed');
     }
-    return { id: payload.sub, username: payload.username, email: payload.email };
+    return { id: payload.sub, username: payload.username, email: payload.email, githubAccessToken: payload.githubAccessToken };
   }
 }

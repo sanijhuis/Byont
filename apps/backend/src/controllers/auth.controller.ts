@@ -38,12 +38,12 @@ export class AuthController {
       email: user.email,
       githubAccessToken: user.githubAccessToken
     });
-    
+
     // Set the JWT in an HTTP-only cookie
     res.cookie('JWT', accessToken, {
       httpOnly: true,
       secure: false, // Set to true only in production environment
-      signed: false,
+      signed: true,
       // sameSite: 'strict',
       maxAge: 60 * 60 * 1000,
     });
@@ -66,7 +66,7 @@ export class AuthController {
       // sameSite: 'strict',
       maxAge: 0,
     });
-    
+
     res.redirect(this.configService.get('FRONTEND_URL')!);
   }
 }
