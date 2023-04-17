@@ -3,6 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './users.service';
 
+interface User {
+    id: number;
+    username: string;
+    email: string;
+    githubAccessToken: string;
+}
+
 @Injectable()
 export class AuthService {
     private readonly logger = new Logger()
@@ -10,9 +17,7 @@ export class AuthService {
         private usersService: UsersService,
         private jwtService: JwtService,
         private readonly configService: ConfigService
-    ) {
-        const jwtSecret = this.configService.get('JWT_SECRET');
-    }
+    ) { }
 
     async validateUserFromGithub(profile: any) {
         const { id, email, username } = profile;
@@ -25,11 +30,10 @@ export class AuthService {
         return { id, email, username };
     }
 
-    async generateJwtToken(user: { id: number; username: string; email: string }) {
+    async generateJwtToken(user: User) {
         const jwtSecret = this.configService.get('JWT_SECRET');
-
-
-        const payload = { sub: user.id, username: user.username, email: user.email };
+        console.log(user.githubAccessToken)
+        const payload = { sub: user.id, username: user.username, email: user.email, githubAccessToken: user.githubAccessToken };
         return this.jwtService.sign(payload, { secret: jwtSecret, expiresIn: '1h' });
     }
 }

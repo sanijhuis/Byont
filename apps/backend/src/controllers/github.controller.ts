@@ -15,7 +15,9 @@ export class GithubController {
     }
 
     @Get('repos')
-    async getAllRepos(){
-        
+    async getRepos(@Req() req: any): Promise<string[]> {
+        // Replace this line with the code that retrieves the access token from the session or JWT
+        const accessToken = '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';
+        return await this.githubService.getRepos(accessToken);
     }
 }

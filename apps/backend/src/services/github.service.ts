@@ -3,6 +3,7 @@ import { Injectable, Req } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { Request } from 'express';
 import { Octokit } from '@octokit/rest';
+import axios from 'axios';
 
 @Injectable()
 export class GithubService {
@@ -22,6 +23,19 @@ export class GithubService {
             console.error(`Error getting repositories: ${error.message}`);
             return [];
         }
+    }
+
+    async getRepos(accessToken: string): Promise<string[]> {
+        const response = await axios.get('https://api.github.com/user/repos', {
+            headers: {
+                Authorization: `token ${accessToken}`,
+            },
+        });
+
+        // Extract the names of the repositories
+        const repoNames = response.data.map((repo: any) => repo.name);
+
+        return repoNames;
     }
 
     async getSolFiles(accessToken: string, repoName: string) {

@@ -31,7 +31,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!payload.exp) {
       throw new UnauthorizedException('Token without expiration is not allowed');
     }
-
     return { id: payload.sub, username: payload.username, email: payload.email };
   }
 }
