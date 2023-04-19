@@ -11,11 +11,13 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../services/auth.service';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService, private configService: ConfigService) { }
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService
+  ) {}
 
   @Get('login')
   @UseGuards(AuthGuard('github'))
@@ -36,7 +38,7 @@ export class AuthController {
       id: user.id,
       username: user.username,
       email: user.email,
-      githubAccessToken: user.githubAccessToken
+      githubAccessToken: user.githubAccessToken,
     });
 
     // Set the JWT in an HTTP-only cookie
@@ -67,6 +69,7 @@ export class AuthController {
       maxAge: 0,
     });
 
-    res.redirect(this.configService.get('FRONTEND_URL')!);
+    const frontendUrl = this.configService.get('FRONTEND_URL');
+    res.redirect(frontendUrl ? frontendUrl : 'http://localhost:8080');
   }
 }

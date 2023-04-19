@@ -1,7 +1,3 @@
-"use client";
-
-import Cookies from "js-cookie";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 const InputFile = () => {

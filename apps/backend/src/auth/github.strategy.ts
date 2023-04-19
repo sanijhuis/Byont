@@ -10,7 +10,6 @@ interface Profile {
   githubAccessToken: string;
 }
 
-
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
   private readonly logger = new Logger();

@@ -14,10 +14,21 @@ import { WebhookModule } from './modules/webhook.module';
 import { FileService } from './services/file.service';
 import { GithubModule } from './modules/github.module';
 
-
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, UserModule, FileModule, WebhookModule, GithubModule],
-  controllers: [AppController, WebhookController, UsersController, AuthController],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
+    UserModule,
+    FileModule,
+    WebhookModule,
+    GithubModule,
+  ],
+  controllers: [
+    AppController,
+    WebhookController,
+    UsersController,
+    AuthController,
+  ],
   providers: [AppService, AuthService, JwtService, FileService],
 })
-export class AppModule { }
+export class AppModule {}

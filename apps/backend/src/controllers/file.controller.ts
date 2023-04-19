@@ -26,7 +26,7 @@ export class FileController {
           cb(null, filename);
         },
       }),
-    }),
+    })
   )
   async analyzeFile(@UploadedFile() file: Express.Multer.File) {
     try {
