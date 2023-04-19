@@ -8,7 +8,11 @@ module.exports = {
       legacyDecorators: true,
     },
   },
-  plugins: ['@typescript-eslint/eslint-plugin'],
+  plugins: [
+    '@typescript-eslint/eslint-plugin',
+    'decorators-legacy',
+    'decorators',
+  ],
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
