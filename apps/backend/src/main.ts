@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
     .setTitle('Endpoint rest api')
@@ -15,6 +15,11 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document);
 
   app.use(cookieParser('sdhushdishudishhsdsui'));
+  app.enableCors({
+    allowedHeaders: '*',
+    origin: ['http://localhost:8080'],
+    credentials: true,
+  });
 
   await app.listen(3000);
 }

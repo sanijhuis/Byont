@@ -40,7 +40,6 @@ export class GithubService {
 
     async getSolFiles(accessToken: string, repoName: string) {
 
-        console.log(accessToken)
         const octokit = new Octokit({ auth: accessToken });
 
         try {

@@ -15,7 +15,10 @@ import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService, private configService: ConfigService) { }
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService,
+  ) {}
 
   @Get('login')
   @UseGuards(AuthGuard('github'))
@@ -36,7 +39,7 @@ export class AuthController {
       id: user.id,
       username: user.username,
       email: user.email,
-      githubAccessToken: user.githubAccessToken
+      githubAccessToken: user.githubAccessToken,
     });
 
     // Set the JWT in an HTTP-only cookie
