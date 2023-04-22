@@ -3,14 +3,17 @@ import {
   Post,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as Docker from 'dockerode';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('file')
 export class FileController {
   @Post('upload')
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
     FileInterceptor('file', {
       limits: {
@@ -23,7 +26,7 @@ export class FileController {
           cb(null, filename);
         },
       }),
-    }),
+    })
   )
   // async analyzeFile(@UploadedFile() file: Express.Multer.File) {
   //   try {

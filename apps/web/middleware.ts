@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function middleware(req: any) {
   console.log(req.cookies);
-  const token = req.cookies.get("access_token")?.value;
+  const token = req.cookies.get("JWT")?.value;
 
   const verifiedToken =
     token &&

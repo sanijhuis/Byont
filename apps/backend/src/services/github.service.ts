@@ -3,65 +3,80 @@ import { Injectable, Req } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { Request } from 'express';
 import { Octokit } from '@octokit/rest';
+import axios from 'axios';
 
 @Injectable()
 export class GithubService {
-    constructor(private httpService: HttpService) { }
+  constructor(private httpService: HttpService) {}
 
-    async getAllRepos(accessToken: string): Promise<string[]> {
-        const url = 'https://api.github.com/user/repos';
-        const headers = {
-            'Authorization': `token ${accessToken}`,
-            'Accept': 'application/vnd.github+json',
-        };
+  async getAllRepos(accessToken: string): Promise<string[]> {
+    const url = 'https://api.github.com/user/repos';
+    const headers = {
+      Authorization: `token ${accessToken}`,
+      Accept: 'application/vnd.github+json',
+    };
 
-        try {
-            const response = await this.httpService.get(url, { headers }).toPromise();
-            return response!.data.map((repo: any) => repo.name);
-        } catch (error) {
-            console.error(`Error getting repositories: ${error.message}`);
-            return [];
-        }
+    try {
+      const response = await this.httpService.get(url, { headers }).toPromise();
+      return response!.data.map((repo: any) => repo.name);
+    } catch (error) {
+      console.error(`Error getting repositories: ${error.message}`);
+      return [];
     }
+  }
 
-    async getSolFiles(accessToken: string, repoName: string) {
+  async getRepos(accessToken: string): Promise<string[]> {
+    const response = await axios.get('https://api.github.com/user/repos', {
+      headers: {
+        Authorization: `token ${accessToken}`,
+      },
+    });
 
-        console.log(accessToken)
-        const octokit = new Octokit({ auth: accessToken });
+    // Extract the names of the repositories
+    const repoNames = response.data.map((repo: any) => repo.name);
 
-        try {
-            const reposResponse = await octokit.repos.listForAuthenticatedUser({
-            });
-            const repos = reposResponse.data;
+    return repoNames;
+  }
 
+  async getSolFiles(accessToken: string, repoName: string) {
+    console.log(accessToken);
+    const octokit = new Octokit({ auth: accessToken });
 
-            const repo = repos.find(r => r.name === repoName);
+    try {
+      const reposResponse = await octokit.repos.listForAuthenticatedUser({});
+      const repos = reposResponse.data;
 
-            if (!repo) {
-                throw new Error(`Repository "${repoName}" not found.`);
-            }
+      const repo = repos.find((r) => r.name === repoName);
 
-            const filesResponse = await octokit.repos.getContent({
-                owner: repo.owner.login,
-                repo: repo.name,
-                path: '',
-            });
+      if (!repo) {
+        throw new Error(`Repository "${repoName}" not found.`);
+      }
 
-            const files = filesResponse.data;
+      const filesResponse = await octokit.repos.getContent({
+        owner: repo.owner.login,
+        repo: repo.name,
+        path: '',
+      });
 
-            if (!Array.isArray(files)) {
-                throw new Error('Unexpected response format from GitHub API.');
-            }
+      const files = filesResponse.data;
 
-            const solFiles = files.filter(f => f.type === 'file' && f.name.endsWith('.sol'));
+      if (!Array.isArray(files)) {
+        throw new Error('Unexpected response format from GitHub API.');
+      }
 
-            if (solFiles.length === 0) {
-                throw new Error(`No .sol files were found in the "${repoName}" repository.`);
-            }
+      const solFiles = files.filter(
+        (f) => f.type === 'file' && f.name.endsWith('.sol')
+      );
 
-            return solFiles;
-        } catch (error) {
-            throw new Error(`Error fetching .sol files: ${error.message}`);
-        }
+      if (solFiles.length === 0) {
+        throw new Error(
+          `No .sol files were found in the "${repoName}" repository.`
+        );
+      }
+
+      return solFiles;
+    } catch (error) {
+      throw new Error(`Error fetching .sol files: ${error.message}`);
     }
+  }
 }
