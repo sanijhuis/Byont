@@ -29,7 +29,7 @@ const ButtonActivate = ({ onClick }: ButtonActivateProps) => {
               Yes
             </button>
             <button
-              className="rounded-md bg-white px-1 py-[5px] font-medium text-black hover:opacity-80 hover:transition-opacity"
+              className="w-[45px] rounded-md bg-white px-1 py-[5px] font-medium text-black hover:opacity-80 hover:transition-opacity"
               onClick={() => setActive(false)}
             >
               No

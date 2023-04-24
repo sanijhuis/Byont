@@ -1,12 +1,8 @@
-import ButtonActivate from "../../../../components/button/button-activate";
+import ListRepo from "../../../../components/dashboard/add-new/list-repo";
 import H2 from "../../../../components/text/H2";
 import Paragraph from "../../../../components/text/paragraph";
-import CardOutline from "../../../../components/ui/card/card-outline";
-import getData from "../../../../services/getAllRepo";
 
 const Page = async () => {
-  const data = await getData();
-  console.log(data);
   return (
     <section className="bg-[#111] py-12">
       <div className="container pb-3">
@@ -27,26 +23,7 @@ const Page = async () => {
           <h3 className="text-25 font-medium text-white">
             Activate for scanner
           </h3>
-          {/* {data?.map((item: string) => (
-            <CardOutline>
-              <div className="flex flex-row items-center justify-between px-1 py-[5px]">
-                <Paragraph
-                  className="flex items-center"
-                  color="white"
-                  size="md"
-                  fontWeight="medium"
-                >
-                  Title
-                </Paragraph>
-
-                <ButtonActivate
-                  onClick={() => {
-                    console.log("Activated");
-                  }}
-                />
-              </div>
-            </CardOutline>
-          ))} */}
+          <ListRepo />
         </div>
       </div>
     </section>
