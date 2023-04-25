@@ -9,6 +9,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as Docker from 'dockerode';
 import { AuthGuard } from '@nestjs/passport';
+import { Configuration, OpenAIApi } from 'openai'
 
 @Controller('file')
 export class FileController {
@@ -108,14 +109,39 @@ export class FileController {
 
 
       logs.on('end', async () => {
+        console.log(await parseOutput(logsData));
         container.remove({ force: true });
-
       });
+
+
+
 
     } catch (err) {
       console.error('Error creating or starting container:', err);
     }
   }
+}
+async function parseOutput(output: string): Promise<void> {
+
+  const configuration = new Configuration({
+    apiKey: process.env.OPEN_AI_API_KEY,
+  });
+  const openai = new OpenAIApi(configuration);
+  const parseMessage = [{role: 'assistant',
+                        content: `parse the following output to json where the format would be as followed:
+                         - Type of error
+                         - error message
+                         - (if available) reference. 
+                         
+                         this is the output: + ${output}`}];
+
+    const result = await openai.createCompletion({
+      model: 'text-davinci-003',
+      prompt: parseMessage,
+      temperature: 0.6,
+    })
+    console.log(result);
+    
 }
 
 
