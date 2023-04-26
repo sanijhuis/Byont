@@ -8,25 +8,13 @@ const InputFile = () => {
     formState: { errors },
   } = useForm();
 
-  // const onSubmit = async (data: any) => {
-  //   console.log(data.file[0]);
-
-  //   await fetch("http://localhost:3000/file/upload", {
-  //     method: "POST",
-  //     // headers: {
-  //     //   Authorization: "Bearer " + Cookies.get("access_token"),
-  //     // },
-  //     body: data.file[0],
-  //   });
-  // };
-
   const onSubmit = async (data: any) => {
-    console.log(data.file[0]);
     const file = data.file[0];
     const formData = new FormData();
     formData.append("file", file);
     const res = await fetchWithCredentials("http://localhost:3000/file/upload", {
       method: "POST",
+      credentials: "include",
       body: formData,
       mode: 'no-cors'
     });

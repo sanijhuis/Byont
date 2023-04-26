@@ -27,6 +27,13 @@ export class AuthService {
       throw new Error('User not found or could not be created');
     }
 
+<<<<<<< apps/backend/src/services/auth.service.ts
+    async generateJwtToken(user: User) {
+        const jwtSecret = this.configService.get('JWT_SECRET');
+        const payload = { sub: user.id, username: user.username, email: user.email, githubAccessToken: user.githubAccessToken };
+        return this.jwtService.sign(payload, { secret: jwtSecret, expiresIn: '1h' });
+    }
+=======
     return { id, email, username };
   }
 
@@ -44,4 +51,5 @@ export class AuthService {
       expiresIn: '1h',
     });
   }
+>>>>>>> apps/backend/src/services/auth.service.ts
 }

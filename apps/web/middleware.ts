@@ -2,7 +2,6 @@ import { verifyAuth } from "./lib/verify-jwt";
 import { NextResponse } from "next/server";
 
 export async function middleware(req: any) {
-  console.log(req.cookies);
   const token = req.cookies.get("JWT")?.value;
 
   const verifiedToken =
@@ -22,8 +21,12 @@ export async function middleware(req: any) {
   if (!verifiedToken) {
     return NextResponse.redirect(new URL("/", req.url));
   }
+
+  if (req.nextUrl.pathname.startsWith("/dashboard") && !verifiedToken) {
+    return NextResponse.rewrite(new URL("/", req.url));
+  }
 }
 
 export const config = {
-  matcher: ["/login", "/dashboard"],
+  matcher: ["/login", "/dashboard/:path*"],
 };

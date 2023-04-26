@@ -25,7 +25,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    console.log('Payload:', payload); // Log the payload
     if (!payload.exp) {
       throw new UnauthorizedException(
         'Token without expiration is not allowed'
