@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt'
+import { ExtractJwt, Strategy } from 'passport-jwt';
 
 /**
  * Passport strategy that authenticates users using JSON Web Tokens (JWT).
@@ -26,8 +26,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     if (!payload.exp) {
-      throw new UnauthorizedException('Token without expiration is not allowed');
+      throw new UnauthorizedException(
+        'Token without expiration is not allowed'
+      );
     }
-    return { id: payload.sub, username: payload.username, email: payload.email, githubAccessToken: payload.githubAccessToken };
+    return {
+      id: payload.sub,
+      username: payload.username,
+      email: payload.email,
+      githubAccessToken: payload.githubAccessToken,
+    };
   }
 }

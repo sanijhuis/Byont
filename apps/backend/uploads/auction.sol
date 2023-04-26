@@ -1,5 +1,5 @@
 pragma solidity ^0.4.15;
-
+pragma experimental ABIEncoderV2;
 //Auction susceptible to DoS attack
 contract DosAuction {
   address currentFrontrunner;

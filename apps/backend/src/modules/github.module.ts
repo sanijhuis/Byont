@@ -6,8 +6,8 @@ import { HttpModule } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 
 @Module({
-    imports: [HttpModule],
-    controllers: [GithubController],
-    providers: [GithubService, JwtService],
+  imports: [HttpModule],
+  controllers: [GithubController],
+  providers: [GithubService, JwtService],
 })
-export class GithubModule { }
+export class GithubModule {}

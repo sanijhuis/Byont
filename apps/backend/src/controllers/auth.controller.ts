@@ -11,26 +11,32 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../services/auth.service';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
+<<<<<<< apps/backend/src/controllers/auth.controller.ts
     private configService: ConfigService,
   ) {}
+=======
+    private configService: ConfigService
+  ) { }
+>>>>>>> apps/backend/src/controllers/auth.controller.ts
 
+  //Initiates the GitHub OAuth2 login process by triggering the authentication guard.
   @Get('login')
   @UseGuards(AuthGuard('github'))
   githubLogin() {
-    // Initiates the GitHub OAuth2 process
     // Can be left empty
   }
 
+  //Handles the GitHub OAuth2 authentication callback, generating and setting the JWT token in an HTTP-only cookie, and redirects the user to the dashboard.
   @Get('callback')
   @UseGuards(AuthGuard('github'))
   async authCallback(@Req() req, @Res({ passthrough: true }) res: Response) {
     const user = req.user;
+    console.log(user)
 
     if (!user) {
       throw new BadRequestException('User object is missing in the request');
@@ -52,24 +58,25 @@ export class AuthController {
     });
     res.redirect('http://localhost:8080/dashboard');
   }
-
+  //Starts the GitHub OAuth2 login process by triggering the authentication guard.
   @Get()
   @UseGuards(AuthGuard('github'))
   async login() {
     //
   }
 
+  //Logs the user out by clearing the JWT cookie and redirecting them to the specified frontend URL, or the default URL if not configured.
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
     // Clear the JWT cookie
-    res.cookie('JWT', '', {
+    res.clearCookie('JWT',  {
       httpOnly: true,
       secure: false, // Set to true only in production environment
       signed: true,
       // sameSite: 'strict',
       maxAge: 0,
     });
-
-    res.redirect(this.configService.get('FRONTEND_URL')!);
+    const frontendUrl = this.configService.get('FRONTEND_URL');
+    res.redirect(frontendUrl ? frontendUrl : 'http://localhost:8080');
   }
 }
