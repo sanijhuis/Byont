@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AppController } from './app.controller';
@@ -13,6 +13,8 @@ import { FileModule } from './modules/file.module';
 import { WebhookModule } from './modules/webhook.module';
 import { FileService } from './services/file.service';
 import { GithubModule } from './modules/github.module';
+import { jwtMiddleware } from './middleware/jwt.middleware';
+
 
 @Module({
   imports: [
@@ -31,4 +33,19 @@ import { GithubModule } from './modules/github.module';
   ],
   providers: [AppService, AuthService, JwtService, FileService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  constructor(private readonly jwtService: JwtService) { }
+
+  async onModuleInit() {
+    const jwtMiddlewareInstance = jwtMiddleware(this.jwtService);
+    await jwtMiddlewareInstance;
+  }
+
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(jwtMiddleware(this.jwtService))
+      .exclude({ path: 'auth', method: RequestMethod.ALL }) // Exclude the auth route from the middleware
+      .forRoutes('*');
+  }
+}
+

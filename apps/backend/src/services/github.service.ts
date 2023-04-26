@@ -7,7 +7,7 @@ import axios from 'axios';
 
 @Injectable()
 export class GithubService {
-  constructor(private httpService: HttpService) {}
+  constructor(private httpService: HttpService) { }
 
   async getAllRepos(accessToken: string): Promise<string[]> {
     const url = 'https://api.github.com/user/repos';
@@ -77,6 +77,36 @@ export class GithubService {
       return solFiles;
     } catch (error) {
       throw new Error(`Error fetching .sol files: ${error.message}`);
+    }
+  }
+
+  async addWebhook(accessToken: string, repoName: string) {
+    const apiUrl = `https://api.github.com/repos/${repoName}/hooks`;
+    const headers = {
+      Authorization: `token ${accessToken}`,
+      Accept: 'application/vnd.github+json',
+    };
+
+    const webhookConfig = {
+      url: 'https://b133-185-65-134-158.ngrok-free.app/webhook/github-events', //Create a NGROK tunnel and replace this with your ngrok URL
+      content_type: 'json',
+    };
+
+    const requestBody = {
+      name: 'web',
+      active: true,
+      events: ['push'],
+      config: webhookConfig,
+    };
+
+    try {
+      const response = await this.httpService
+        .post(apiUrl, requestBody, { headers })
+        .toPromise();
+      return response!.data;
+    } catch (error) {
+      console.error('Error adding webhook:', error);
+      throw error;
     }
   }
 }

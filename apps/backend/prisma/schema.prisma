@@ -17,8 +17,8 @@ model User {
 }
 
 model Repo {
-  id     Int  @id
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
+  id         Int   @id
+  userId     Int
+  user       User  @relation(fields: [userId], references: [id])
   scanOutput Json?
 }

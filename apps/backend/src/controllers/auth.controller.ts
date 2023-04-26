@@ -19,7 +19,6 @@ export class AuthController {
     private configService: ConfigService
   ) { }
 
-
   //Initiates the GitHub OAuth2 login process by triggering the authentication guard.
   @Get('login')
   @UseGuards(AuthGuard('github'))
@@ -27,12 +26,12 @@ export class AuthController {
     // Can be left empty
   }
 
-
   //Handles the GitHub OAuth2 authentication callback, generating and setting the JWT token in an HTTP-only cookie, and redirects the user to the dashboard.
   @Get('callback')
   @UseGuards(AuthGuard('github'))
   async authCallback(@Req() req, @Res({ passthrough: true }) res: Response) {
     const user = req.user;
+    console.log(user)
 
     if (!user) {
       throw new BadRequestException('User object is missing in the request');
@@ -65,7 +64,7 @@ export class AuthController {
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
     // Clear the JWT cookie
-    res.cookie('JWT', '', {
+    res.clearCookie('JWT',  {
       httpOnly: true,
       secure: false, // Set to true only in production environment
       signed: true,

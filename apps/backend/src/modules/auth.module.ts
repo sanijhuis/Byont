@@ -50,4 +50,4 @@ import { JwtStrategy } from '../auth/jwt.strategy';
   providers: [AuthService, GithubStrategy, JwtStrategy],
   controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule { }

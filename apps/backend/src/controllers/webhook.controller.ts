@@ -1,4 +1,13 @@
-import { Controller, Post, Headers, Body, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Headers,
+  Body,
+  Logger,
+  HttpException,
+  HttpStatus,
+  Req,
+} from '@nestjs/common';
 import { createHmac } from 'crypto';
 import { Webhooks } from '@octokit/webhooks';
 import { ConfigService } from '@nestjs/config';
@@ -12,6 +21,35 @@ interface WebhookBody {
 @Controller('webhook')
 export class WebhookController {
   private readonly logger = new Logger();
+
+  @Post('github-events')
+  async handleGithubEvent(@Req() req: Request) {
+    const event = req.headers['x-github-event'];
+    const payload = req.body;
+
+    if (!event) {
+      throw new HttpException('Event header missing', HttpStatus.BAD_REQUEST);
+    }
+
+    switch (event) {
+      case 'push':
+        this.handlePushEvent(payload);
+        break;
+     
+      default:
+        throw new HttpException(
+          'Unsupported event type',
+          HttpStatus.BAD_REQUEST
+        );
+    }
+
+    return { message: 'Event received' };
+  }
+
+  private handlePushEvent(payload: any) {
+  
+    console.log('Push event received:', payload);
+  }
 
   @Post()
   handleWebhook(
