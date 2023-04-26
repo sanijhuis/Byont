@@ -4,6 +4,7 @@ import { HttpService } from '@nestjs/axios';
 import { Request } from 'express';
 import { Octokit } from '@octokit/rest';
 import axios from 'axios';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class GithubService {
@@ -78,5 +79,10 @@ export class GithubService {
     } catch (error) {
       throw new Error(`Error fetching .sol files: ${error.message}`);
     }
+  }
+
+  async postOutput(accestoken: string, scanOutput: JSON): Promise<string> {
+    
+    return "works"
   }
 }

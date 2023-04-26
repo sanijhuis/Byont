@@ -128,18 +128,22 @@ async function parseOutput(output: string): Promise<void> {
   });
   const openai = new OpenAIApi(configuration);
 
-  const parseMessage = `parse the following output to json where the format would be as followed:\n 
-                         - Type of error\n 
-                         - error message\n
-                         - (if available) reference.\n
-                         this is the output:\n' + ${output.toString()}`;
 
-    const completion = await openai.createCompletion({
-      model: 'gpt-3.5-turbo',
-      prompt: parseMessage,
-    })
-    console.log(completion);
-    console.log(completion.data.choices[0].text);
+  try {    
+    const completion = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages: [{role: 'user', content: `parse the following output to json where the format would be as followed:\n 
+    - Type of error\n 
+    - error message\n
+    - (if available) reference.\n
+    this is the output:\n' + ${output.toString()}`}],
+  })
+  console.log(completion.data.choices[0].message?.content);
+   } catch (err) {
+    console.log(err)
+  }
+
+
 }
 
 
