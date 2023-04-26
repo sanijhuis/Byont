@@ -103,13 +103,13 @@ export class FileController {
       logs.pipe(process.stdout);
       logs.on('data', async (data) => {
         logsData += data;
+        await parseOutput(logsData);
       });
 
 
 
 
       logs.on('end', async () => {
-        console.log(await parseOutput(logsData));
         container.remove({ force: true });
       });
 
@@ -127,21 +127,19 @@ async function parseOutput(output: string): Promise<void> {
     apiKey: process.env.OPEN_AI_API_KEY,
   });
   const openai = new OpenAIApi(configuration);
-  const parseMessage = [{role: 'assistant',
-                        content: `parse the following output to json where the format would be as followed:
-                         - Type of error
-                         - error message
-                         - (if available) reference. 
-                         
-                         this is the output: + ${output}`}];
 
-    const result = await openai.createCompletion({
-      model: 'text-davinci-003',
+  const parseMessage = `parse the following output to json where the format would be as followed:\n 
+                         - Type of error\n 
+                         - error message\n
+                         - (if available) reference.\n
+                         this is the output:\n' + ${output.toString()}`;
+
+    const completion = await openai.createCompletion({
+      model: 'gpt-3.5-turbo',
       prompt: parseMessage,
-      temperature: 0.6,
     })
-    console.log(result);
-    
+    console.log(completion);
+    console.log(completion.data.choices[0].text);
 }
 
 

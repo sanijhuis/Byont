@@ -30,8 +30,6 @@ const InputFile = () => {
       body: formData,
       mode: 'no-cors'
     });
-
-    console.log(res);
   };
 
   return (
