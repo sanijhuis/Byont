@@ -17,16 +17,7 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document);
 
   app.use(cookieParser('sdhushdishudishhsdsui'));
-<<<<<<< apps/backend/src/main.ts
-  app.enableCors({
-    allowedHeaders: '*',
-    origin: ['http://localhost:8080'],
-    credentials: true,
-  });
-
-=======
   app.use(jwtMiddleware(app.get(JwtService)));
->>>>>>> apps/backend/src/main.ts
   await app.listen(3000);
 }
 bootstrap();

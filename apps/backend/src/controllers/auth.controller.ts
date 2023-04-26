@@ -16,13 +16,8 @@ import { ConfigService } from '@nestjs/config';
 export class AuthController {
   constructor(
     private authService: AuthService,
-<<<<<<< apps/backend/src/controllers/auth.controller.ts
-    private configService: ConfigService,
-  ) {}
-=======
     private configService: ConfigService
   ) { }
->>>>>>> apps/backend/src/controllers/auth.controller.ts
 
   //Initiates the GitHub OAuth2 login process by triggering the authentication guard.
   @Get('login')

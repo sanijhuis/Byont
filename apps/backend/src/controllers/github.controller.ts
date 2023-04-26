@@ -20,13 +20,8 @@ import { CreateWebhookDto } from 'src/DTO/create-webhook.dto';
 export class GithubController {
   constructor(
     private readonly githubService: GithubService,
-<<<<<<< apps/backend/src/controllers/github.controller.ts
-    private readonly jwtService: JwtService,
-  ) {}
-=======
     private readonly jwtService: JwtService
   ) { }
->>>>>>> apps/backend/src/controllers/github.controller.ts
 
   @Get('sol-files')
   async getSolFiles(@Req() req: Request) {
@@ -35,37 +30,6 @@ export class GithubController {
     if (!jwtToken) {
       throw new UnauthorizedException('JWT token is missing');
     }
-<<<<<<< apps/backend/src/controllers/github.controller.ts
-
-    const payload = this.jwtService.decode(jwtToken) as any;
-    const accessToken = payload.githubAccessToken;
-
-    if (!accessToken) {
-      throw new UnauthorizedException('GitHub access token is missing');
-    }
-
-    const repoName = 'webhooksrepo'; // Replace with the desired repository name
-    return this.githubService.getSolFiles(accessToken, repoName);
-  }
-
-  @Get('repos')
-  async getRepos(@Req() req: Request): Promise<string[]> {
-    console.log(req.signedCookies.JWT);
-    const jwtToken = req.signedCookies.JWT;
-
-    if (!jwtToken) {
-      throw new UnauthorizedException('JWT token is missing');
-    }
-
-    const payload = this.jwtService.decode(jwtToken) as any;
-    const accessToken = payload.githubAccessToken;
-
-    if (!accessToken) {
-      throw new UnauthorizedException('GitHub access token is missing');
-    }
-
-    return await this.githubService.getRepos(accessToken);
-=======
 
     const payload = this.jwtService.decode(jwtToken) as any;
     const accessToken = payload.githubAccessToken;
@@ -148,6 +112,5 @@ export class GithubController {
       console.log(error);
       throw new HttpException('Invalid JWT token', HttpStatus.UNAUTHORIZED);
     }
->>>>>>> apps/backend/src/controllers/github.controller.ts
   }
 }

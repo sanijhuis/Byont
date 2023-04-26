@@ -38,13 +38,9 @@ export class GithubService {
     return repoNames;
   }
 
-<<<<<<< apps/backend/src/services/github.service.ts
-        const octokit = new Octokit({ auth: accessToken });
-=======
   async getSolFiles(accessToken: string, repoName: string) {
     console.log(accessToken);
     const octokit = new Octokit({ auth: accessToken });
->>>>>>> apps/backend/src/services/github.service.ts
 
     try {
       const reposResponse = await octokit.repos.listForAuthenticatedUser({});
@@ -113,4 +109,4 @@ export class GithubService {
       throw error;
     }
   }
-}
+}
