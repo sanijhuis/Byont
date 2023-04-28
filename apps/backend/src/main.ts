@@ -21,7 +21,7 @@ async function bootstrap() {
   });
 
   app.use(cookieParser('cookieSecret'));
-  //app.use(jwtMiddleware(app.get(JwtService)));
+  app.use(jwtMiddleware(app.get(JwtService)));
   await app.listen(3000);
 }
 bootstrap();

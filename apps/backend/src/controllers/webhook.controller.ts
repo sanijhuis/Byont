@@ -12,7 +12,6 @@ export class WebhookController {
   private readonly logger = new Logger();
 
   @Post('github-events')
-
   async handleGithubEvent(@Req() req: Request) {
     const event = req.headers['x-github-event'] as string;
     const payload = req.body;

@@ -15,8 +15,8 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
-  ) { }
+    private readonly configService: ConfigService
+  ) {}
 
   async validateUserFromGithub(profile: any) {
     const { id, email, username } = profile;

@@ -33,7 +33,10 @@ export class AuthController {
   @Get('callback')
   @UseGuards(AuthGuard('github'))
   @Redirect('http://localhost:8080/dashboard')
-  async authCallback(@Req() req: any, @Res({ passthrough: true }) res: Response) {
+  async authCallback(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response
+  ) {
     const user = req.user;
     console.log(user);
 
@@ -43,7 +46,6 @@ export class AuthController {
     const token = await this.authService.generateJwtToken({
       username: user.username,
       email: user.email,
-
     });
 
     // Set the JWT in an HTTP-only cookie
@@ -54,7 +56,7 @@ export class AuthController {
       sameSite: 'lax',
       maxAge: 60 * 60 * 1000,
     });
-    
+
     await this.userService.findOrCreate(user);
     await this.userService.updateGithubAccessToken(
       user.email,
@@ -65,7 +67,6 @@ export class AuthController {
       user.email,
       user.githubAccessToken
     );
-
   }
   //Starts the GitHub OAuth2 login process by triggering the authentication guard.
   @Get()

@@ -29,14 +29,8 @@ export class GithubController {
 
   @Get('sol-files')
   async getSolFiles(@Req() req: Request) {
-    const jwtToken = req.signedCookies.JWT;
-
-    if (!jwtToken) {
-      throw new UnauthorizedException('JWT token is missing');
-    }
-
-    const payload = this.jwtService.decode(jwtToken) as any;
-    const accessToken = await this.userService.getAccessToken(payload.email);
+    const user = req['customUser'];
+    const accessToken = await this.userService.getAccessToken(user.email);
 
     if (!accessToken) {
       throw new UnauthorizedException('GitHub access token is missing');
@@ -49,14 +43,8 @@ export class GithubController {
   @Get('repos')
   @UseGuards(AuthGuard('jwt'))
   async getRepos(@Req() req: Request): Promise<string[]> {
-    const jwtToken = req.signedCookies.JWT;
-    const payload = this.jwtService.decode(jwtToken) as any;
-    console.log('payload', jwtToken);
-    if (!jwtToken) {
-      throw new UnauthorizedException('JWT token is missing');
-    }
-
-    const accessToken = await this.userService.getAccessToken(payload.email);
+    const user = req['customUser'];
+    const accessToken = await this.userService.getAccessToken(user.email);
 
     if (!accessToken) {
       throw new UnauthorizedException('GitHub access token is missing');
