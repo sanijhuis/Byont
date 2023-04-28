@@ -68,6 +68,7 @@ export class AuthController {
       user.githubAccessToken
     );
   }
+  
   //Starts the GitHub OAuth2 login process by triggering the authentication guard.
   @Get()
   @UseGuards(AuthGuard('github'))
@@ -84,7 +85,7 @@ export class AuthController {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production', // Set to true only in production environment
       signed: true,
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 0,
     });
     const frontendUrl = this.configService.get('FRONTEND_URL');

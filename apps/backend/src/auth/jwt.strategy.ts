@@ -2,9 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import * as jwt from 'jsonwebtoken';
-import { UsersService } from '../services/users.service';
-import cookieParser from 'cookie-parser';
 /**
  * Passport strategy that authenticates users using JSON Web Tokens (JWT).
  * The strategy requires a secret key that is used to verify the token's signature.

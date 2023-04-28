@@ -42,7 +42,7 @@ import { JwtStrategy } from '../auth/jwt.strategy';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secretOrPrivateKey: configService.get('JWT_SECRET'),
+        secret: configService.get('JWT_SECRET'),
         signOptions: { expiresIn: '60s' },
       }),
     }),
@@ -50,4 +50,4 @@ import { JwtStrategy } from '../auth/jwt.strategy';
   providers: [AuthService, GithubStrategy, JwtStrategy],
   controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule { }

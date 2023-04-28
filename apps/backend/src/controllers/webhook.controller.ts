@@ -1,19 +1,19 @@
 import {
   Controller,
+  Headers,
   HttpException,
   HttpStatus,
-  Logger,
   Post,
   Req,
 } from '@nestjs/common';
+import { WebhookService } from 'src/services/webhook.service';
 
 @Controller('webhook')
 export class WebhookController {
-  private readonly logger = new Logger();
+  constructor(private webhookService: WebhookService) { }
 
   @Post('github-events')
-  async handleGithubEvent(@Req() req: Request) {
-    const event = req.headers['x-github-event'] as string;
+  async handleGithubEvent(@Headers('x-github-event') event: string, @Req() req: Request) {
     const payload = req.body;
 
     if (!event) {
@@ -22,11 +22,11 @@ export class WebhookController {
 
     switch (event) {
       case 'push':
-        this.handlePushEvent(payload);
+        this.webhookService.handlePushEvent(payload);
         break;
 
       case 'ping':
-        console.log('ping event received');
+        this.webhookService.handlePingEvent();
         break;
 
       default:
@@ -37,9 +37,5 @@ export class WebhookController {
     }
 
     return { message: 'Event received' };
-  }
-
-  private handlePushEvent(payload: any) {
-    console.log('Push event received:');
   }
 }

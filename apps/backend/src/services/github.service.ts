@@ -1,12 +1,11 @@
-// src/github/github.service.ts
-import { HttpService } from '@nestjs/axios';
+
 import { Injectable } from '@nestjs/common';
 import { Octokit } from '@octokit/rest';
 import { User } from 'src/types/user.type';
 
 @Injectable()
 export class GithubService {
-  constructor(private httpService: HttpService) {}
+  constructor() { }
 
   async getRepos(accessToken: string): Promise<any[]> {
     // Initialize the Octokit client with the access token
@@ -115,7 +114,7 @@ export class GithubService {
           active: true,
           events: ['push', 'pull_request'],
           config: {
-            url: ' https://2902-2a02-a210-2b45-5200-2dbd-ee44-1e75-c796.ngrok-free.app/webhook/github-events',
+            url: 'https://bdfc-185-65-134-174.ngrok-free.app/webhook/github-events',
             content_type: 'json',
             insecure_ssl: '0',
           },
@@ -126,7 +125,7 @@ export class GithubService {
       );
 
       if (response.status === 201) {
-        console.log('Webhook created successfully:', response.data);
+        console.log('Webhook created successfully:');
         return response.data;
       } else {
         console.log('Error creating webhook:', response);

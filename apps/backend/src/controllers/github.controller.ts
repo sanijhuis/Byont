@@ -13,7 +13,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { CreateWebhookDto } from 'src/DTO/create-webhook.dto';
-import { JwtPayload } from 'src/decorators/jwt-payload.decorator';
 import { UsersService } from 'src/services/users.service';
 import { User } from 'src/types/user.type';
 import { GithubService } from '../services/github.service';

@@ -8,17 +8,13 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthController } from './controllers/auth.controller';
+import { jwtMiddleware } from './middleware/jwt.middleware';
 import { AuthModule } from './modules/auth.module';
-import { AuthService } from './services/auth.service';
-import { UsersController } from './controllers/user.controller';
-import { WebhookController } from './controllers/webhook.controller';
-import { UserModule } from './modules/user.module';
 import { FileModule } from './modules/file.module';
+import { GithubModule } from './modules/github.module';
+import { UserModule } from './modules/user.module';
 import { WebhookModule } from './modules/webhook.module';
 import { FileService } from './services/file.service';
-import { GithubModule } from './modules/github.module';
-import { jwtMiddleware } from './middleware/jwt.middleware';
 
 @Module({
   imports: [
@@ -31,18 +27,15 @@ import { jwtMiddleware } from './middleware/jwt.middleware';
   ],
   controllers: [
     AppController,
-    WebhookController,
-    UsersController,
-    AuthController,
   ],
-  providers: [AppService, AuthService, JwtService, FileService],
+  providers: [AppService, JwtService, FileService],
 })
 export class AppModule implements NestModule {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) { }
 
   async onModuleInit() {
     const jwtMiddlewareInstance = jwtMiddleware(this.jwtService);
-    await jwtMiddlewareInstance;
+    jwtMiddlewareInstance;
   }
 
   configure(consumer: MiddlewareConsumer) {
