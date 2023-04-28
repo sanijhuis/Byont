@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AppController } from './app.controller';
@@ -14,7 +19,6 @@ import { WebhookModule } from './modules/webhook.module';
 import { FileService } from './services/file.service';
 import { GithubModule } from './modules/github.module';
 import { jwtMiddleware } from './middleware/jwt.middleware';
-
 
 @Module({
   imports: [
@@ -34,7 +38,7 @@ import { jwtMiddleware } from './middleware/jwt.middleware';
   providers: [AppService, AuthService, JwtService, FileService],
 })
 export class AppModule implements NestModule {
-  constructor(private readonly jwtService: JwtService) { }
+  constructor(private readonly jwtService: JwtService) {}
 
   async onModuleInit() {
     const jwtMiddlewareInstance = jwtMiddleware(this.jwtService);
@@ -48,4 +52,3 @@ export class AppModule implements NestModule {
       .forRoutes('*');
   }
 }
-

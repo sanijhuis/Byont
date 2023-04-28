@@ -1,7 +1,8 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
-    "githubId" INTEGER NOT NULL,
+    "username" TEXT NOT NULL,
+    "githubAccessToken" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -19,7 +20,10 @@ CREATE TABLE "Repo" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_githubId_key" ON "User"("githubId");
+CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_githubAccessToken_key" ON "User"("githubAccessToken");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");

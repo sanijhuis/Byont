@@ -7,35 +7,52 @@ import axios from 'axios';
 
 @Injectable()
 export class GithubService {
-  constructor(private httpService: HttpService) { }
+  constructor(private httpService: HttpService) {}
 
-  async getAllRepos(accessToken: string): Promise<string[]> {
-    const url = 'https://api.github.com/user/repos';
-    const headers = {
-      Authorization: `token ${accessToken}`,
-      Accept: 'application/vnd.github+json',
-    };
-
-    try {
-      const response = await this.httpService.get(url, { headers }).toPromise();
-      return response!.data.map((repo: any) => repo.name);
-    } catch (error) {
-      console.error(`Error getting repositories: ${error.message}`);
-      return [];
-    }
-  }
-
-  async getRepos(accessToken: string): Promise<string[]> {
-    const response = await axios.get('https://api.github.com/user/repos', {
-      headers: {
-        Authorization: `token ${accessToken}`,
-      },
+  async getRepos(accessToken: string): Promise<any[]> {
+    // Initialize the Octokit client with the access token
+    const octokit = new Octokit({
+      auth: accessToken,
     });
 
-    // Extract the names of the repositories
-    const repoNames = response.data.map((repo: any) => repo.name);
+    try {
+      // Fetch repositories
+      const response = await octokit.request('GET /user/repos');
 
-    return repoNames;
+      // Extract the names of the repositories and check for webhooks
+      const reposWithWebhooks = await Promise.all(
+        response.data.map(async (repo: any) => {
+          try {
+            const webhooks = await octokit.request(
+              'GET /repos/{owner}/{repo}/hooks',
+              {
+                owner: repo.owner.login,
+                repo: repo.name,
+              }
+            );
+
+            return {
+              name: repo.name,
+              hasWebhook: webhooks.data.length > 0,
+            };
+          } catch (error) {
+            console.error(
+              `Error fetching webhooks for ${repo.name}:`,
+              error.message
+            );
+            return {
+              name: repo.name,
+              hasWebhook: false,
+            };
+          }
+        })
+      );
+
+      return reposWithWebhooks;
+    } catch (error) {
+      console.error('Error fetching repositories:', error.message);
+      return [];
+    }
   }
 
   async getSolFiles(accessToken: string, repoName: string) {
@@ -88,7 +105,7 @@ export class GithubService {
     };
 
     const webhookConfig = {
-      url: 'https://b133-185-65-134-158.ngrok-free.app/webhook/github-events', //Create a NGROK tunnel and replace this with your ngrok URL
+      url: ' https://2902-2a02-a210-2b45-5200-2dbd-ee44-1e75-c796.ngrok-free.app/webhook/github-events', //Create a NGROK tunnel and replace this with your ngrok URL
       content_type: 'json',
     };
 

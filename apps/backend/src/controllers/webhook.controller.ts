@@ -24,7 +24,7 @@ export class WebhookController {
 
   @Post('github-events')
   async handleGithubEvent(@Req() req: Request) {
-    const event = req.headers['x-github-event'];
+    const event = req.headers['x-github-event'] as string;
     const payload = req.body;
 
     if (!event) {
@@ -35,7 +35,11 @@ export class WebhookController {
       case 'push':
         this.handlePushEvent(payload);
         break;
-     
+
+      case 'ping':
+        console.log('ping event received');
+        break;
+
       default:
         throw new HttpException(
           'Unsupported event type',
@@ -47,7 +51,6 @@ export class WebhookController {
   }
 
   private handlePushEvent(payload: any) {
-  
     console.log('Push event received:', payload);
   }
 

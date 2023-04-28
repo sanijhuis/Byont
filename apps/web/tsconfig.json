@@ -6,6 +6,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
+  "compilerOptions": {
+    "downlevelIteration": true,
+  },
   "exclude": [
     "node_modules"
   ]

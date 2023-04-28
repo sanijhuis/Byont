@@ -8,12 +8,13 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  githubId  Int      @unique
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  repos     Repo[]
+  id                Int      @id @default(autoincrement())
+  username          String   @unique
+  githubAccessToken String   @unique
+  email             String   @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  repos             Repo[]
 }
 
 model Repo {

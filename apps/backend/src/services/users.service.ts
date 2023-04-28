@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { User } from 'src/types/user.type';
 
 @Injectable()
 export class UsersService {
@@ -9,26 +10,51 @@ export class UsersService {
     this.prisma = new PrismaClient();
   }
 
-  async findOrCreate(user: { email: string; id: number }) {
-    this.logger.log('User: ', user);
-    if (user.email == undefined) {
-      return false;
-    }
-    let existingUser = await this.prisma.user.findUnique({
+  async findOrCreate(user: User) {
+    console.log(user);
+    const { githubAccessToken, email, username } = user;
+    const existingUser = await this.prisma.user.findUnique({
       where: {
-        githubId: user.id,
+        email: user.email,
       },
     });
-
-    if (!existingUser) {
-      existingUser = await this.prisma.user.create({
+    if (existingUser) {
+      return true;
+    } else {
+      const newUser = await this.prisma.user.create({
         data: {
-          githubId: user.id,
-          email: user.email,
+          githubAccessToken,
+          email,
+          username,
         },
       });
+      return newUser;
     }
+  }
 
-    return existingUser;
+  async getAllUsers() {
+    const users = await this.prisma.user.findMany();
+    return users;
+  }
+
+  async getAccessToken(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+    return user ? user.githubAccessToken : null;
+  }
+
+  async updateGithubAccessToken(email: string, githubAccessToken: string) {
+    const user = await this.prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        githubAccessToken,
+      },
+    });
+    return user;
   }
 }

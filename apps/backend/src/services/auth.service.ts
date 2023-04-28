@@ -4,10 +4,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './users.service';
 
 interface User {
-  id: number;
   username: string;
   email: string;
-  githubAccessToken: string;
 }
 
 @Injectable()
@@ -32,12 +30,9 @@ export class AuthService {
 
   async generateJwtToken(user: User) {
     const jwtSecret = this.configService.get('JWT_SECRET');
-    console.log(user.githubAccessToken);
     const payload = {
-      sub: user.id,
       username: user.username,
       email: user.email,
-      githubAccessToken: user.githubAccessToken,
     };
     return this.jwtService.sign(payload, {
       secret: jwtSecret,

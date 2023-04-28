@@ -11,13 +11,15 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../services/auth.service';
 import { ConfigService } from '@nestjs/config';
+import { UsersService } from 'src/services/users.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private configService: ConfigService
-  ) { }
+    private configService: ConfigService,
+    private userService: UsersService
+  ) {}
 
   //Initiates the GitHub OAuth2 login process by triggering the authentication guard.
   @Get('login')
@@ -31,26 +33,33 @@ export class AuthController {
   @UseGuards(AuthGuard('github'))
   async authCallback(@Req() req, @Res({ passthrough: true }) res: Response) {
     const user = req.user;
-    console.log(user)
+    console.log(user);
 
     if (!user) {
       throw new BadRequestException('User object is missing in the request');
     }
-    const accessToken = await this.authService.generateJwtToken({
-      id: user.id,
+    const token = await this.authService.generateJwtToken({
       username: user.username,
       email: user.email,
-      githubAccessToken: user.githubAccessToken,
     });
 
     // Set the JWT in an HTTP-only cookie
-    res.cookie('JWT', accessToken, {
+    res.cookie('JWT', token, {
       httpOnly: true,
       secure: false, // Set to true only in production environment
       signed: true,
       // sameSite: 'strict',
       maxAge: 60 * 60 * 1000,
     });
+    console.log('true or not ', await this.userService.findOrCreate(user));
+
+    console.log(
+      await this.userService.updateGithubAccessToken(
+        user.email,
+        user.githubAccessToken
+      )
+    );
+    console.log('Users: ', await this.userService.getAllUsers());
     res.redirect('http://localhost:8080/dashboard');
   }
   //Starts the GitHub OAuth2 login process by triggering the authentication guard.
@@ -64,7 +73,7 @@ export class AuthController {
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
     // Clear the JWT cookie
-    res.clearCookie('JWT',  {
+    res.clearCookie('JWT', {
       httpOnly: true,
       secure: false, // Set to true only in production environment
       signed: true,

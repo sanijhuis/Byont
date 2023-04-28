@@ -1,3 +1,3 @@
 export class CreateWebhookDto {
-    repoName: string;
+  repoName: string;
 }
