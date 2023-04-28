@@ -63,20 +63,11 @@ export class GithubController {
   }
 
   @Post('add-webhook')
-  async createWebhook(
-    @Req() req: Request,
-    @Response() res: any,
-    @Body() body: CreateWebhookDto
-  ) {
+  async createWebhook(@Req() req: Request, @Response() res: any, @Body() body: CreateWebhookDto) {
     const repoName = body.repoName;
-    console.log('body', body);
-    if (!req['customUser']) {
-      throw new UnauthorizedException('User not found');
-    }
-
     const user: User = req['customUser'];
     const accessToken = await this.userService.getAccessToken(user.email);
-    console.log(user);
+
     if (!user || !accessToken) {
       throw new UnauthorizedException(
         'User does not exist or GitHub access token is missing'
@@ -84,47 +75,11 @@ export class GithubController {
     }
 
     try {
-      const octokit = new Octokit({
-        auth: accessToken,
+      const webhookData = await this.githubService.createWebhook(accessToken, user, repoName); // Call the createWebhook method
+      return res.status(201).json({
+        data: webhookData,
+        message: 'Webhook created successfully',
       });
-      if (octokit) {
-        console.log('octokit created');
-      }
-
-      try {
-        const response = await octokit.request(
-          'POST /repos/{owner}/{repo}/hooks',
-          {
-            owner: user.username,
-            repo: repoName,
-            name: 'web',
-            active: true,
-            events: ['push', 'pull_request'],
-            config: {
-              url: ' https://2902-2a02-a210-2b45-5200-2dbd-ee44-1e75-c796.ngrok-free.app/webhook/github-events', //Create a NGROK tunnel and replace this with your ngrok URL
-              content_type: 'json',
-              insecure_ssl: '0',
-            },
-            headers: {
-              accept: 'application/vnd.github+json',
-            },
-          }
-        );
-
-        if (response.status === 201) {
-          console.log('Webhook created successfully:', response.data);
-          return res
-            .status(201)
-            .json({
-              data: response.data,
-              message: 'Webhook created successfully',
-            });
-        } else {
-          console.log('Error creating webhook:', response);
-        }
-      } catch (error) {
-        console.error('Error creating webhook:', error);
-      }
     } catch (error) {
       console.log(error);
       throw new HttpException('Invalid JWT token', HttpStatus.UNAUTHORIZED);
