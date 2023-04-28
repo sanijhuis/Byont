@@ -1,15 +1,14 @@
 import {
   Controller,
   Post,
-  UseInterceptors,
   UploadedFile,
   UseGuards,
-  BadRequestException,
+  UseInterceptors
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import * as Docker from 'dockerode';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as Docker from 'dockerode';
+import { diskStorage } from 'multer';
 import { Configuration, OpenAIApi } from 'openai';
 
 @Controller('file')

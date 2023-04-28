@@ -6,18 +6,18 @@ import {
   HttpStatus,
   Post,
   Req,
-  UnauthorizedException,
   Response,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
-import { GithubService } from '../services/github.service';
 import { JwtService } from '@nestjs/jwt';
-import { Octokit } from '@octokit/rest';
-import { JwtPayload } from 'src/decorators/jwt-payload.decorator';
-import { User } from 'src/types/user.type';
+import { Request } from 'express';
 import { CreateWebhookDto } from 'src/DTO/create-webhook.dto';
-import { PrismaClient } from '@prisma/client';
+import { JwtPayload } from 'src/decorators/jwt-payload.decorator';
 import { UsersService } from 'src/services/users.service';
+import { User } from 'src/types/user.type';
+import { GithubService } from '../services/github.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('github')
 export class GithubController {
@@ -25,7 +25,7 @@ export class GithubController {
     private readonly githubService: GithubService,
     private readonly jwtService: JwtService,
     private readonly userService: UsersService
-  ) {}
+  ) { }
 
   @Get('sol-files')
   async getSolFiles(@Req() req: Request) {
@@ -47,9 +47,12 @@ export class GithubController {
   }
 
   @Get('repos')
-  async getRepos(@JwtPayload() payload: any): Promise<string[]> {
-    console.log('payload', payload);
-    if (!payload) {
+  @UseGuards(AuthGuard('jwt'))
+  async getRepos(@Req() req: Request): Promise<string[]> {
+    const jwtToken = req.signedCookies.JWT;
+    const payload = this.jwtService.decode(jwtToken) as any;
+    console.log('payload', jwtToken);
+    if (!jwtToken) {
       throw new UnauthorizedException('JWT token is missing');
     }
 
@@ -63,7 +66,12 @@ export class GithubController {
   }
 
   @Post('add-webhook')
-  async createWebhook(@Req() req: Request, @Response() res: any, @Body() body: CreateWebhookDto) {
+  @UseGuards(AuthGuard('jwt'))
+  async createWebhook(
+    @Req() req: Request,
+    @Response() res: any,
+    @Body() body: CreateWebhookDto
+  ) {
     const repoName = body.repoName;
     const user: User = req['customUser'];
     const accessToken = await this.userService.getAccessToken(user.email);
@@ -75,7 +83,11 @@ export class GithubController {
     }
 
     try {
-      const webhookData = await this.githubService.createWebhook(accessToken, user, repoName); // Call the createWebhook method
+      const webhookData = await this.githubService.createWebhook(
+        accessToken,
+        user,
+        repoName
+      );
       return res.status(201).json({
         data: webhookData,
         message: 'Webhook created successfully',

@@ -15,9 +15,13 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
+  app.enableCors({
+    origin: 'http://localhost:8080',
+    credentials: true,
+  });
 
-  app.use(cookieParser('sdhushdishudishhsdsui'));
-  app.use(jwtMiddleware(app.get(JwtService)));
+  app.use(cookieParser('cookieSecret'));
+  //app.use(jwtMiddleware(app.get(JwtService)));
   await app.listen(3000);
 }
 bootstrap();

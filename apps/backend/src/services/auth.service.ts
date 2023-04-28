@@ -10,12 +10,13 @@ interface User {
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger();
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
-    private readonly configService: ConfigService
-  ) {}
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) { }
 
   async validateUserFromGithub(profile: any) {
     const { id, email, username } = profile;
@@ -29,12 +30,12 @@ export class AuthService {
   }
 
   async generateJwtToken(user: User) {
-    const jwtSecret = this.configService.get('JWT_SECRET');
+    const jwtSecret = this.configService.get<string>('JWT_SECRET');
     const payload = {
       username: user.username,
       email: user.email,
     };
-    return this.jwtService.sign(payload, {
+    return this.jwtService.signAsync(payload, {
       secret: jwtSecret,
       expiresIn: '1h',
     });

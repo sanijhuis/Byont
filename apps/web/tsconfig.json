@@ -9,6 +9,11 @@
   "compilerOptions": {
     "downlevelIteration": true,
   },
+  "plugins": [
+    {
+      "name": "next"
+    }
+  ],
   "exclude": [
     "node_modules"
   ]

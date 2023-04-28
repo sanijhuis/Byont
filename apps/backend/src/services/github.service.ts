@@ -1,14 +1,12 @@
 // src/github/github.service.ts
-import { Injectable, Req } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { Request } from 'express';
+import { Injectable } from '@nestjs/common';
 import { Octokit } from '@octokit/rest';
-import axios from 'axios';
 import { User } from 'src/types/user.type';
 
 @Injectable()
 export class GithubService {
-  constructor(private httpService: HttpService) { }
+  constructor(private httpService: HttpService) {}
 
   async getRepos(accessToken: string): Promise<any[]> {
     // Initialize the Octokit client with the access token
@@ -98,27 +96,34 @@ export class GithubService {
     }
   }
 
-  async createWebhook(accessToken: string, user: User, repoName: string): Promise<any> {
+  async createWebhook(
+    accessToken: string,
+    user: User,
+    repoName: string
+  ): Promise<any> {
     const octokit = new Octokit({
       auth: accessToken,
     });
 
     try {
-      const response = await octokit.request('POST /repos/{owner}/{repo}/hooks', {
-        owner: user.username,
-        repo: repoName,
-        name: 'web',
-        active: true,
-        events: ['push', 'pull_request'],
-        config: {
-          url: 'https://your-ngrok-url/webhook/github-events',
-          content_type: 'json',
-          insecure_ssl: '0',
-        },
-        headers: {
-          accept: 'application/vnd.github+json',
-        },
-      });
+      const response = await octokit.request(
+        'POST /repos/{owner}/{repo}/hooks',
+        {
+          owner: user.username,
+          repo: repoName,
+          name: 'web',
+          active: true,
+          events: ['push', 'pull_request'],
+          config: {
+            url: ' https://2902-2a02-a210-2b45-5200-2dbd-ee44-1e75-c796.ngrok-free.app/webhook/github-events',
+            content_type: 'json',
+            insecure_ssl: '0',
+          },
+          headers: {
+            accept: 'application/vnd.github+json',
+          },
+        }
+      );
 
       if (response.status === 201) {
         console.log('Webhook created successfully:', response.data);
