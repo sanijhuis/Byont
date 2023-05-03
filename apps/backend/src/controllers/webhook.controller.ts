@@ -10,10 +10,13 @@ import { WebhookService } from 'src/services/webhook.service';
 
 @Controller('webhook')
 export class WebhookController {
-  constructor(private webhookService: WebhookService) { }
+  constructor(private webhookService: WebhookService) {}
 
   @Post('github-events')
-  async handleGithubEvent(@Headers('x-github-event') event: string, @Req() req: Request) {
+  async handleGithubEvent(
+    @Headers('x-github-event') event: string,
+    @Req() req: Request
+  ) {
     const payload = req.body;
 
     if (!event) {

@@ -10,7 +10,6 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { CreateWebhookDto } from 'src/DTO/create-webhook.dto';
 import { UsersService } from 'src/services/users.service';
@@ -22,21 +21,20 @@ import { AuthGuard } from '@nestjs/passport';
 export class GithubController {
   constructor(
     private readonly githubService: GithubService,
-    private readonly jwtService: JwtService,
     private readonly userService: UsersService
-  ) { }
+  ) {}
 
   @Get('sol-files')
   async getSolFiles(@Req() req: Request) {
     const user = req['customUser'];
     const accessToken = await this.userService.getAccessToken(user.email);
-
+    
     if (!accessToken) {
       throw new UnauthorizedException('GitHub access token is missing');
     }
 
     const repoName = 'webhooksrepo'; // Replace with the desired repository name
-    return this.githubService.getSolFiles(accessToken, repoName);
+    return this.githubService.downloadSolFiles(user.username, repoName, accessToken);
   }
 
   @Get('repos')

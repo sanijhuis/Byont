@@ -8,6 +8,6 @@ import { UsersService } from 'src/services/users.service';
 @Module({
   imports: [],
   controllers: [GithubController],
-  providers: [GithubService, JwtService, UsersService],
+  providers: [GithubService, UsersService],
 })
-export class GithubModule { }
+export class GithubModule {}

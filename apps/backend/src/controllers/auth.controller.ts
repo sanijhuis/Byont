@@ -20,7 +20,7 @@ export class AuthController {
     private authService: AuthService,
     private configService: ConfigService,
     private userService: UsersService
-  ) { }
+  ) {}
 
   //Initiates the GitHub OAuth2 login process by triggering the authentication guard.
   @Get('login')
@@ -68,7 +68,7 @@ export class AuthController {
       user.githubAccessToken
     );
   }
-  
+
   //Starts the GitHub OAuth2 login process by triggering the authentication guard.
   @Get()
   @UseGuards(AuthGuard('github'))

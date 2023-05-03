@@ -1,11 +1,14 @@
-
 import { Injectable } from '@nestjs/common';
 import { Octokit } from '@octokit/rest';
+import axios from 'axios';
+import * as fs from 'fs';
+import * as path from 'path';
 import { User } from 'src/types/user.type';
+var appRoot = require('app-root-path');
 
 @Injectable()
 export class GithubService {
-  constructor() { }
+  constructor() {}
 
   async getRepos(accessToken: string): Promise<any[]> {
     // Initialize the Octokit client with the access token
@@ -53,45 +56,29 @@ export class GithubService {
     }
   }
 
-  async getSolFiles(accessToken: string, repoName: string) {
-    console.log(accessToken);
+  async downloadSolFiles(owner: string, repo: string, accessToken): Promise<void> {
     const octokit = new Octokit({ auth: accessToken });
+    const response = await octokit.request('GET /repos/{owner}/{repo}/contents', {
+      owner,
+      repo,
+    });
 
-    try {
-      const reposResponse = await octokit.repos.listForAuthenticatedUser({});
-      const repos = reposResponse.data;
+   console.log(appRoot.path, 'approot')
+    const solFiles = response.data.filter(
+      (file: { name: string }) => path.extname(file.name) === '.sol'
+    );
+   
+    const outputDir = path.join(appRoot.path,'apps', 'backend', 'src', 'contracts');
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir);
+    }
+    console.log(outputDir, 'outputdir');
 
-      const repo = repos.find((r) => r.name === repoName);
-
-      if (!repo) {
-        throw new Error(`Repository "${repoName}" not found.`);
-      }
-
-      const filesResponse = await octokit.repos.getContent({
-        owner: repo.owner.login,
-        repo: repo.name,
-        path: '',
-      });
-
-      const files = filesResponse.data;
-
-      if (!Array.isArray(files)) {
-        throw new Error('Unexpected response format from GitHub API.');
-      }
-
-      const solFiles = files.filter(
-        (f) => f.type === 'file' && f.name.endsWith('.sol')
-      );
-
-      if (solFiles.length === 0) {
-        throw new Error(
-          `No .sol files were found in the "${repoName}" repository.`
-        );
-      }
-
-      return solFiles;
-    } catch (error) {
-      throw new Error(`Error fetching .sol files: ${error.message}`);
+    for (const file of solFiles) {
+      const { download_url, name } = file;
+      const { data } = await axios.get(download_url, { responseType: 'arraybuffer' });
+      fs.writeFileSync(path.join(outputDir, name), data);
+      console.log(`Downloaded ${name}`);
     }
   }
 
@@ -114,7 +101,7 @@ export class GithubService {
           active: true,
           events: ['push', 'pull_request'],
           config: {
-            url: 'https://bdfc-185-65-134-174.ngrok-free.app/webhook/github-events',
+            url: 'https://88ac-2a02-a210-2b45-5200-a4b3-f17-3db-f6e3.ngrok-free.app/webhook/github-events',
             content_type: 'json',
             insecure_ssl: '0',
           },

@@ -25,13 +25,11 @@ import { FileService } from './services/file.service';
     WebhookModule,
     GithubModule,
   ],
-  controllers: [
-    AppController,
-  ],
+  controllers: [AppController],
   providers: [AppService, JwtService, FileService],
 })
 export class AppModule implements NestModule {
-  constructor(private readonly jwtService: JwtService) { }
+  constructor(private readonly jwtService: JwtService) {}
 
   async onModuleInit() {
     const jwtMiddlewareInstance = jwtMiddleware(this.jwtService);
