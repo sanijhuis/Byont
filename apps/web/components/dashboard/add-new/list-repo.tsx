@@ -5,20 +5,31 @@ import fetchWithCredentials from "../../../utils/fetchWithCredentials";
 import ButtonActivate from "../../button/button-activate";
 import Paragraph from "../../text/paragraph";
 import CardOutline from "../../ui/card/card-outline";
-import { useEffect, useState } from "react";
+import { useToast } from "@/components/ui/toaster/use-toast";
+import { ToastAction } from "@radix-ui/react-toast";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
-const ListRepo = () => {
-  const [repos, setRepos] = useState<
-    Array<{ name: string; hasWebhook: boolean }>
-  >([]);
-  const [hiddenRepos, setHiddenRepos] = useState<Set<string>>(new Set());
+type Repo = {
+  name: string;
+  hasWebhook: boolean;
+};
+
+const ListRepo = (): JSX.Element => {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [repoNameVar, setRepoNameVar] = useState<string>("");
+  const [repos, setRepos] = useState<Repo[]>([]);
+
   useEffect(() => {
-    getData().then(res => {
-      setRepos(res);
+    getData().then((res: Repo[]) => {
+      const filteredRepos = res.filter((repo: Repo) => !repo.hasWebhook);
+      setRepos(filteredRepos);
     });
   }, []);
 
-  const activateWebHookGithub = async (repo: string) => {
+  const activateWebHookGithub = async (repoName: string): Promise<boolean> => {
+    setRepoNameVar(repoName);
     const res = await fetchWithCredentials(
       "http://localhost:3000/github/add-webhook",
       {
@@ -26,46 +37,57 @@ const ListRepo = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ repoName: repo }),
+        body: JSON.stringify({ repoName }),
       }
     );
     const data = await res.json();
+    console.log(data.message);
     if (data.message === "Webhook created successfully") {
-      return true;
+      toast({
+        title: "you have activated your repository for scans.",
+        description:
+          "Your repository is now being scanned for vulnerabilities in your smart contract.",
+      });
+      router.push("/dashboard");
     } else {
-      return false;
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: "There was a problem with your request.",
+        action: (
+          <ToastAction altText="Try again">
+            <button
+              onClick={async () => {
+                await activateWebHookGithub(repoNameVar);
+              }}
+            >
+              Try again
+            </button>
+          </ToastAction>
+        ),
+      });
     }
+
+    return data.message === "Webhook created successfully";
   };
 
   return (
     <section className="flex flex-col gap-1">
-      {repos?.map(
-        (item: { name: string; hasWebhook: boolean }, index: number) => (
-          <CardOutline key={index}>
-            <div className="flex flex-row items-center justify-between px-1 py-[5px]">
-              <Paragraph
-                className="flex items-center"
-                color="white"
-                size="md"
-                fontWeight="medium"
-              >
-                {item.name}
-              </Paragraph>
-
-              {!item.hasWebhook && !hiddenRepos.has(item.name) && (
-                <ButtonActivate
-                  onClick={async () => {
-                    const success = await activateWebHookGithub(item.name);
-                    if (success) {
-                      setHiddenRepos(prev => new Set([...prev, item.name]));
-                    }
-                  }}
-                />
-              )}
-            </div>
-          </CardOutline>
-        )
-      )}
+      {repos.map((repo: Repo, index: number) => (
+        <CardOutline key={index}>
+          <div className="flex flex-row items-center justify-between px-1 py-[5px]">
+            <Paragraph
+              className="flex items-center"
+              color="white"
+              size="md"
+              fontWeight="medium"
+            >
+              {repo.name}
+            </Paragraph>
+            <ButtonActivate onClick={() => activateWebHookGithub(repo.name)} />
+          </div>
+        </CardOutline>
+      ))}
     </section>
   );
 };

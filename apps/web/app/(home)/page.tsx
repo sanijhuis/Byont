@@ -1,11 +1,11 @@
 "use client";
 
-import AnimatedTextWord from "../components/animations/AnimatedText";
-import InViewFadeIn from "../components/animations/inview-fade-in";
-import ButtonAnimation from "../components/button/button-animation";
-import H1 from "../components/text/H1";
-import Paragraph from "../components/text/paragraph";
-import imageMytrh from "../public/scanners/mythril.png";
+import AnimatedTextWord from "@/components/animations/AnimatedText";
+import InViewFadeIn from "@/components/animations/inview-fade-in";
+import ButtonAnimation from "@/components/button/button-animation";
+import H1 from "@/components/text/H1";
+import Paragraph from "@/components/text/paragraph";
+import imageMytrh from "@/public/scanners/mythril.png";
 import Image from "next/image";
 
 const Page = () => {

@@ -8,7 +8,7 @@ import { User } from 'src/types/user.type';
 
 @Injectable()
 export class GithubService {
-  constructor(private httpService: HttpService) { }
+  constructor(private httpService: HttpService) {}
 
   async getRepos(accessToken: string): Promise<any[]> {
     // Initialize the Octokit client with the access token
@@ -98,27 +98,34 @@ export class GithubService {
     }
   }
 
-  async createWebhook(accessToken: string, user: User, repoName: string): Promise<any> {
+  async createWebhook(
+    accessToken: string,
+    user: User,
+    repoName: string
+  ): Promise<any> {
     const octokit = new Octokit({
       auth: accessToken,
     });
 
     try {
-      const response = await octokit.request('POST /repos/{owner}/{repo}/hooks', {
-        owner: user.username,
-        repo: repoName,
-        name: 'web',
-        active: true,
-        events: ['push', 'pull_request'],
-        config: {
-          url: 'https://your-ngrok-url/webhook/github-events',
-          content_type: 'json',
-          insecure_ssl: '0',
-        },
-        headers: {
-          accept: 'application/vnd.github+json',
-        },
-      });
+      const response = await octokit.request(
+        'POST /repos/{owner}/{repo}/hooks',
+        {
+          owner: user.username,
+          repo: repoName,
+          name: 'web',
+          active: true,
+          events: ['push', 'pull_request'],
+          config: {
+            url: 'https://5cda-83-85-197-199.eu.ngrok.io/webhook/github-events',
+            content_type: 'json',
+            insecure_ssl: '0',
+          },
+          headers: {
+            accept: 'application/vnd.github+json',
+          },
+        }
+      );
 
       if (response.status === 201) {
         console.log('Webhook created successfully:', response.data);
