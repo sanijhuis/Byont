@@ -10,4 +10,4 @@ import { UsersService } from 'src/services/users.service';
   controllers: [FileController],
   providers: [FileService, PrismaService, RepoService, UsersService],
 })
-export class FileModule { }
+export class FileModule {}

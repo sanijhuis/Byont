@@ -12,7 +12,12 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FileService {
-  constructor(private prisma: PrismaService, private repoService: RepoService, private userService: UsersService, private configService: ConfigService) {
+  constructor(
+    private prisma: PrismaService,
+    private repoService: RepoService,
+    private userService: UsersService,
+    private configService: ConfigService
+  ) {
     this.prisma = new PrismaClient();
   }
   async analyzeMythril(repoName: string, user: any) {
@@ -64,12 +69,14 @@ export class FileService {
             const output = this.removeNonPrintableChars(logsData);
             console.log('output with no characters', output);
             const userId = await this.userService.findIdByEmail(user);
-            const repoId = await this.repoService.findRepoByNameAndUserId(repoName, userId!);
-            const GPTResponse = await parseOutput(output, this.configService)
-            console.log('GPTResponse', GPTResponse)
+            const repoId = await this.repoService.findRepoByNameAndUserId(
+              repoName,
+              userId!
+            );
+            const GPTResponse = await parseOutput(output, this.configService);
+            console.log('GPTResponse', GPTResponse);
             await this.prisma.scanResult.create({
               data: {
-
                 repo: { connect: { id: repoId } },
                 scanner: Scanner.MYTHRIL,
                 filename: filename,
@@ -98,6 +105,7 @@ export class FileService {
 
   async analyzeSlither(repoName: string, user: any) {
     try {
+      let requestCounter = 0;
       const currentDir = __dirname;
       const rootDir = path.join(currentDir, '..', '..', '..', '..', '..');
       const contractsDir = path.join(
@@ -129,7 +137,6 @@ export class FileService {
             '--json',
             `/mnt/output-${filename}.json`,
           ],
-
         });
 
         await container.start();
@@ -152,12 +159,15 @@ export class FileService {
             const output = this.removeNonPrintableChars(logsData);
             console.log('output with no characters', output);
             const userId = await this.userService.findIdByEmail(user);
-            const repoId = await this.repoService.findRepoByNameAndUserId(repoName, userId!);
-            const GPTResponse = await parseOutput(output, this.configService)
-            console.log('GPTResponse', GPTResponse)
+            const repoId = await this.repoService.findRepoByNameAndUserId(
+              repoName,
+              userId!
+            );
+            await this.delay(1000);
+            const GPTResponse = await parseOutput(output, this.configService);
+            console.log('GPTResponse', GPTResponse);
             await this.prisma.scanResult.create({
               data: {
-
                 repo: { connect: { id: repoId } },
                 scanner: Scanner.SLITHER,
                 filename: filename,
@@ -172,6 +182,7 @@ export class FileService {
             reject(err);
           });
         });
+        console.log(requestCounter);
       }
     } catch (err) {
       console.error('Error creating or starting container:', err);
@@ -183,5 +194,9 @@ export class FileService {
       .split('')
       .filter((char) => char.charCodeAt(0) >= 32 && char.charCodeAt(0) <= 126)
       .join('');
+  }
+
+  delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

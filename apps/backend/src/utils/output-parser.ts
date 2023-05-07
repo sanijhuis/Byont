@@ -1,12 +1,13 @@
 import { Configuration, OpenAIApi } from 'openai';
 import { ConfigService } from '@nestjs/config';
 
-export async function parseOutput(output: string, configService: ConfigService): Promise<void> {
+export async function parseOutput(
+  output: string,
+  configService: ConfigService
+): Promise<void> {
   const configuration = new Configuration({
-    apiKey: configService.get("OPEN_AI_API_KEY"),
+    apiKey: configService.get('OPEN_AI_API_KEY'),
   });
-
-  console.log(configuration, 'configuration');
   const openai = new OpenAIApi(configuration);
   const parseMessage = [
     {
@@ -19,10 +20,18 @@ export async function parseOutput(output: string, configService: ConfigService):
                            this is the output: + ${output}`,
     },
   ];
-  const result = await openai.createCompletion({
-    model: 'gpt-3.5-turbo',
-    prompt: parseMessage,
-    temperature: 0.6,
-  });
-  console.log(result);
+  try {
+    const result = await openai.createCompletion({
+      model: 'gpt-3.5-turbo',
+      prompt: parseMessage,
+      temperature: 0.6,
+    });
+  } catch (error) {
+    if (error.response) {
+      console.log('Error response status:', error.response.status);
+      console.log('Error response data:', error.response.data);
+    } else {
+      console.log('Error message:', error.message);
+    }
+  }
 }

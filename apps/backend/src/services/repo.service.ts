@@ -3,40 +3,45 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class RepoService {
-    constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
-    async findRepoByNameAndUserId(repoName: string, userId: number): Promise<number> {
-        const repo = await this.prisma.repo.findFirst({
-            where: {
-                name: repoName,
-                userId: userId,
-            },
-        });
+  async findRepoByNameAndUserId(
+    repoName: string,
+    userId: number
+  ): Promise<number> {
+    const repo = await this.prisma.repo.findFirst({
+      where: {
+        name: repoName,
+        userId: userId,
+      },
+    });
 
-        if (!repo) {
-            throw new NotFoundException(`Repo with name "${repoName}" not found for user with ID ${userId}`);
-        }
-
-        return repo.id;
+    if (!repo) {
+      throw new NotFoundException(
+        `Repo with name "${repoName}" not found for user with ID ${userId}`
+      );
     }
 
-    findAll() {
-        return this.prisma.repo.findMany();
-    }
+    return repo.id;
+  }
 
-    findOne(id: number) {
-        return this.prisma.repo.findUnique({ where: { id } });
-    }
+  findAll() {
+    return this.prisma.repo.findMany();
+  }
 
-    create(data: any) {
-        return this.prisma.repo.create({ data });
-    }
+  findOne(id: number) {
+    return this.prisma.repo.findUnique({ where: { id } });
+  }
 
-    update(id: number, data: any) {
-        return this.prisma.repo.update({ where: { id }, data });
-    }
+  create(data: any) {
+    return this.prisma.repo.create({ data });
+  }
 
-    delete(id: number) {
-        return this.prisma.repo.delete({ where: { id } });
-    }
+  update(id: number, data: any) {
+    return this.prisma.repo.update({ where: { id }, data });
+  }
+
+  delete(id: number) {
+    return this.prisma.repo.delete({ where: { id } });
+  }
 }

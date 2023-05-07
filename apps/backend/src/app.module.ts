@@ -28,13 +28,13 @@ import { ScanResultModule } from './modules/scanResult.module';
     WebhookModule,
     GithubModule,
     RepoModule,
-    ScanResultModule
+    ScanResultModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtService, FileService, PrismaService],
 })
 export class AppModule implements NestModule {
-  constructor(private readonly jwtService: JwtService) { }
+  constructor(private readonly jwtService: JwtService) {}
 
   async onModuleInit() {
     const jwtMiddlewareInstance = jwtMiddleware(this.jwtService);
