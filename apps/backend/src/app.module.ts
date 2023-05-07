@@ -15,6 +15,9 @@ import { GithubModule } from './modules/github.module';
 import { UserModule } from './modules/user.module';
 import { WebhookModule } from './modules/webhook.module';
 import { FileService } from './services/file.service';
+import { PrismaService } from 'prisma/prisma.service';
+import { RepoModule } from './modules/repo.module';
+import { ScanResultModule } from './modules/scanResult.module';
 
 @Module({
   imports: [
@@ -24,12 +27,14 @@ import { FileService } from './services/file.service';
     FileModule,
     WebhookModule,
     GithubModule,
+    RepoModule,
+    ScanResultModule
   ],
   controllers: [AppController],
-  providers: [AppService, JwtService, FileService],
+  providers: [AppService, JwtService, FileService, PrismaService],
 })
 export class AppModule implements NestModule {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) { }
 
   async onModuleInit() {
     const jwtMiddlewareInstance = jwtMiddleware(this.jwtService);

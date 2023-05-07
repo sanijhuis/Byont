@@ -28,26 +28,31 @@ export class GithubController {
   async getSolFiles(@Req() req: Request) {
     const user = req['customUser'];
     const accessToken = await this.userService.getAccessToken(user.email);
-    
+
     if (!accessToken) {
       throw new UnauthorizedException('GitHub access token is missing');
     }
 
     const repoName = 'webhooksrepo'; // Replace with the desired repository name
-    return this.githubService.downloadSolFiles(user.username, repoName, accessToken);
+    return this.githubService.downloadSolFiles(
+      user.username,
+      repoName,
+      accessToken
+    );
   }
 
   @Get('repos')
   @UseGuards(AuthGuard('jwt'))
   async getRepos(@Req() req: Request): Promise<string[]> {
     const user = req['customUser'];
+    const userId = await this.userService.findIdByEmail(user.email);
     const accessToken = await this.userService.getAccessToken(user.email);
-
+    console.log(user);
     if (!accessToken) {
       throw new UnauthorizedException('GitHub access token is missing');
     }
 
-    return await this.githubService.getRepos(accessToken);
+    return await this.githubService.getRepos(accessToken, userId!);
   }
 
   @Post('add-webhook')

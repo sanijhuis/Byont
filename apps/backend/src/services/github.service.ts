@@ -1,16 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { Octokit } from '@octokit/rest';
+import { PrismaClient, Repo } from '@prisma/client';
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
+import { PrismaService } from 'prisma/prisma.service';
 import { User } from 'src/types/user.type';
 var appRoot = require('app-root-path');
 
 @Injectable()
 export class GithubService {
-  constructor() {}
+  constructor(private prisma: PrismaService) {
+    this.prisma = new PrismaClient();
+  }
 
-  async getRepos(accessToken: string): Promise<any[]> {
+  async getRepos(accessToken: string, userId: number): Promise<any[]> {
     // Initialize the Octokit client with the access token
     const octokit = new Octokit({
       auth: accessToken,
@@ -32,8 +36,17 @@ export class GithubService {
               }
             );
 
+            // Create a new Repo record in the database
+            const createdRepo = await this.prisma.repo.create({
+              data: {
+                user: { connect: { id: userId } },
+                name: repo.name,
+                owner: repo.owner.login,
+              },
+            });
+
             return {
-              name: repo.name,
+              ...createdRepo,
               hasWebhook: webhooks.data.length > 0,
             };
           } catch (error) {
@@ -43,6 +56,7 @@ export class GithubService {
             );
             return {
               name: repo.name,
+              owner: repo.owner.login,
               hasWebhook: false,
             };
           }
@@ -53,22 +67,37 @@ export class GithubService {
     } catch (error) {
       console.error('Error fetching repositories:', error.message);
       return [];
+    } finally {
+      await this.prisma.$disconnect();
     }
   }
 
-  async downloadSolFiles(owner: string, repo: string, accessToken): Promise<void> {
+  async downloadSolFiles(
+    owner: string,
+    repo: string,
+    accessToken
+  ): Promise<void> {
     const octokit = new Octokit({ auth: accessToken });
-    const response = await octokit.request('GET /repos/{owner}/{repo}/contents', {
-      owner,
-      repo,
-    });
+    const response = await octokit.request(
+      'GET /repos/{owner}/{repo}/contents',
+      {
+        owner,
+        repo,
+      }
+    );
 
-   console.log(appRoot.path, 'approot')
+    console.log(appRoot.path, 'approot');
     const solFiles = response.data.filter(
       (file: { name: string }) => path.extname(file.name) === '.sol'
     );
-   
-    const outputDir = path.join(appRoot.path,'apps', 'backend', 'src', 'contracts');
+
+    const outputDir = path.join(
+      appRoot.path,
+      'apps',
+      'backend',
+      'src',
+      'contracts'
+    );
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir);
     }
@@ -76,7 +105,9 @@ export class GithubService {
 
     for (const file of solFiles) {
       const { download_url, name } = file;
-      const { data } = await axios.get(download_url, { responseType: 'arraybuffer' });
+      const { data } = await axios.get(download_url, {
+        responseType: 'arraybuffer',
+      });
       fs.writeFileSync(path.join(outputDir, name), data);
       console.log(`Downloaded ${name}`);
     }

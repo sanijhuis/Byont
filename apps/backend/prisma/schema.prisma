@@ -18,8 +18,26 @@ model User {
 }
 
 model Repo {
-  id         Int   @id
-  userId     Int
-  user       User  @relation(fields: [userId], references: [id])
-  scanOutput Json?
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id])
+  name        String
+  owner       String
+  scanResults ScanResult[]
+}
+
+model ScanResult {
+  id        Int      @id @default(autoincrement())
+  repoId    Int
+  repo      Repo     @relation(fields: [repoId], references: [id])
+  scanner   Scanner
+  filename  String
+  output    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Scanner {
+  SLITHER
+  MYTHRIL
 }
