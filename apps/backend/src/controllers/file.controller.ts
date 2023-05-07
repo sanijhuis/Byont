@@ -24,7 +24,7 @@ export class FileController {
   ) {
     const user = req['customUser'];
     //Temporary for testing, this will be replaced with the properties of the user object
-    const tempEmail = 'meesvanberkel120@hotmail.com';
+    const tempEmail = 'sanijhuis@live.nl';
     return this.fileService.analyzeMythril(repoName, tempEmail);
     //What is should look like
     //return this.fileService.analyzeMythril(repoName, user.email);

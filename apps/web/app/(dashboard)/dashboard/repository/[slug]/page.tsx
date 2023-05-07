@@ -1,3 +1,5 @@
+import MainScanResults from "@/components/dashboard/scan-results/main-scan-results";
+
 interface PageProps {
   params: {
     slug: string;
@@ -5,7 +7,7 @@ interface PageProps {
 }
 
 const Page = ({ params }: PageProps) => {
-  return <p className="text-white">{params.slug}</p>;
+  return <MainScanResults slug={params.slug} />;
 };
 
 export default Page;

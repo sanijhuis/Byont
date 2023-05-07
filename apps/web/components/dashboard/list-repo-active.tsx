@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 
 type Repo = {
   name: string;
+  owner: string;
   hasWebhook: boolean;
 };
 
