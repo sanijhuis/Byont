@@ -103,13 +103,14 @@ export class FileController {
       logs.pipe(process.stdout);
       logs.on('data', async (data) => {
         logsData += data;
-        await parseOutput(logsData);
+
       });
 
 
 
 
       logs.on('end', async () => {
+        await parseOutput(logsData);
         container.remove({ force: true });
       });
 
@@ -132,11 +133,11 @@ async function parseOutput(output: string): Promise<void> {
   try {    
     const completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
-    messages: [{role: 'user', content: `parse the following output to json where the format would be as followed:\n 
-    - Type of error\n 
-    - error message\n
-    - (if available) reference.\n
-    this is the output:\n' + ${output.toString()}`}],
+    messages: [{role: 'user', content: 'pretend to be a parser'},{role: 'user', content: `parse the output to json where the format would be as followed:\n
+    - parameter (if available)\n
+    - errorMessage\n
+    - reference (if available)\n
+      ${output.toString()}`}],
   })
   console.log(completion.data.choices[0].message?.content);
    } catch (err) {
