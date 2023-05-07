@@ -4,6 +4,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   Req,
   Response,
@@ -22,10 +23,10 @@ export class GithubController {
   constructor(
     private readonly githubService: GithubService,
     private readonly userService: UsersService
-  ) {}
+  ) { }
 
-  @Get('sol-files')
-  async getSolFiles(@Req() req: Request) {
+  @Get('sol-files/:repoName')
+  async getSolFiles(@Req() req: Request, @Param('repoName') repoName: string) {
     const user = req['customUser'];
     const accessToken = await this.userService.getAccessToken(user.email);
 
@@ -33,7 +34,7 @@ export class GithubController {
       throw new UnauthorizedException('GitHub access token is missing');
     }
 
-    const repoName = 'webhooksrepo'; // Replace with the desired repository name
+
     return this.githubService.downloadSolFiles(
       user.username,
       repoName,
