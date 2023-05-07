@@ -16,10 +16,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
   app.enableCors({
-    origin: 'http://localhost:8080',
+    allowedHeaders: 'Content-Type, Accept',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: ['http://localhost:8080'],
     credentials: true,
   });
-
   app.use(cookieParser('cookieSecret'));
   app.use(jwtMiddleware(app.get(JwtService)));
   await app.listen(3000);

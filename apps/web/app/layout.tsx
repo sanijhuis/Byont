@@ -1,5 +1,4 @@
-import Footer from "../components/footer/footer";
-import Header from "../components/header/header";
+import { Toaster } from "@/components/ui/toaster/toaster";
 import "../styles/global.css";
 import { Inter } from "next/font/google";
 
@@ -18,9 +17,8 @@ export default function RootLayout({
   return (
     <html className={inter.className} lang="en">
       <body className="bg-black">
-        <Header />
         {children}
-        <Footer />
+        <Toaster />
       </body>
     </html>
   );
