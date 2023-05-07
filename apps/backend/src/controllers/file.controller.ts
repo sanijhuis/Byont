@@ -10,7 +10,6 @@ export class FileController {
   async analyzeSlither(@Param('repoName') repoName: string, @Req() req: Request) {
     const user = req['customUser'];
     //Temporary for testing, this will be replaced with the properties of the user objects
-    const tempUserName = 'Meesz';
     const tempEmail = 'meesvanberkel120@hotmail.com'
     return this.fileService.analyzeSlither(repoName, tempEmail);
   }
@@ -19,8 +18,9 @@ export class FileController {
   async analyzeMythril(@Param('repoName') repoName: string, @Req() req: Request) {
     const user = req['customUser'];
     //Temporary for testing, this will be replaced with the properties of the user object
-    const tempUserName = 'Meesz';
     const tempEmail = 'meesvanberkel120@hotmail.com'
     return this.fileService.analyzeMythril(repoName, tempEmail);
+    //What is should look like
+    //return this.fileService.analyzeMythril(repoName, user.email);
   }
 }

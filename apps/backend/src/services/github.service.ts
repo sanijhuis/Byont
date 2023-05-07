@@ -96,7 +96,8 @@ export class GithubService {
       'apps',
       'backend',
       'src',
-      'contracts'
+      'contracts',
+      `${repo}`
     );
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir);

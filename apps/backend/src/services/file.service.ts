@@ -105,7 +105,8 @@ export class FileService {
         'apps',
         'backend',
         'src',
-        'contracts'
+        'contracts',
+        `${repoName}`
       );
       const solFiles = fs
         .readdirSync(contractsDir)

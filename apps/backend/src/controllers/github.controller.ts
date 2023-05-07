@@ -34,7 +34,6 @@ export class GithubController {
       throw new UnauthorizedException('GitHub access token is missing');
     }
 
-
     return this.githubService.downloadSolFiles(
       user.username,
       repoName,
