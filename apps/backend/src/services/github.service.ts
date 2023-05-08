@@ -72,59 +72,40 @@ export class GithubService {
     }
   }
 
-  async downloadSolFiles(
-    owner: string,
-    repo: string,
-    accessToken
-  ): Promise<void> {
+  async downloadSolFiles(owner: string, repo: string, accessToken): Promise<void> {
     const octokit = new Octokit({ auth: accessToken });
-    const response = await octokit.request(
-      'GET /repos/{owner}/{repo}/contents',
-      {
-        owner,
-        repo,
-      }
-    );
+    const response = await octokit.request('GET /repos/{owner}/{repo}/contents', {
+      owner,
+      repo,
+    });
 
-    console.log(appRoot.path, 'approot');
-    const solFiles = response.data.filter(
-      (file: { name: string }) => path.extname(file.name) === '.sol'
-    );
+    const solFiles = response.data.filter((file: { name: string }) => path.extname(file.name) === '.sol');
 
-    const contractsBaseDir = path.join(
-      appRoot.path,
-      'apps',
-      'backend',
-      'src',
-      'contracts'
-    );
+    const contractsBaseDir = path.join(appRoot.path, 'apps', 'backend', 'src', 'contracts');
+    const outputDir = path.join(contractsBaseDir, repo);
 
-    // Check if the 'contracts' folder exists, if not, create it
+    // Ensure the 'contracts' and 'outputDir' folders exist
     if (!fs.existsSync(contractsBaseDir)) {
       fs.mkdirSync(contractsBaseDir);
     }
-
-    const outputDir = path.join(
-      appRoot.path,
-      'apps',
-      'backend',
-      'src',
-      'contracts',
-      `${repo}`
-    );
-
-
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir);
     }
-    console.log(outputDir, 'outputdir');
 
+    console.log('Output directory:', outputDir);
+
+    // Write a test file to the contractsBaseDir
+    const testFilePath = path.join(contractsBaseDir, 'test.txt');
+    fs.writeFileSync(testFilePath, 'Hello, World!', 'utf8');
+
+    // Download and save .sol files
     for (const file of solFiles) {
       const { download_url, name } = file;
       const { data } = await axios.get(download_url, {
         responseType: 'arraybuffer',
       });
-      fs.writeFileSync(path.join(outputDir, name), data);
+      const fileOutputPath = path.join(outputDir, name);
+      fs.writeFileSync(fileOutputPath, data);
       console.log(`Downloaded ${name}`);
     }
   }
