@@ -72,19 +72,30 @@ export class GithubService {
     }
   }
 
-
-
-  async downloadSolFiles(owner: string, repo: string, accessToken): Promise<void> {
+  async downloadSolFiles(
+    owner: string,
+    repo: string,
+    accessToken
+  ): Promise<void> {
     const octokit = new Octokit({ auth: accessToken });
-    const response = await octokit.request('GET /repos/{owner}/{repo}/contents', {
-      owner,
-      repo,
-    });
+    const response = await octokit.request(
+      'GET /repos/{owner}/{repo}/contents',
+      {
+        owner,
+        repo,
+      }
+    );
     const solFiles = await this.getSolFilesRecursive(octokit, owner, repo);
 
     //const solFiles = response.data.filter((file: { name: string }) => path.extname(file.name) === '.sol');
 
-    const contractsBaseDir = path.join(appRoot.path, 'apps', 'backend', 'src', 'contracts');
+    const contractsBaseDir = path.join(
+      appRoot.path,
+      'apps',
+      'backend',
+      'src',
+      'contracts'
+    );
     const outputDir = path.join(contractsBaseDir, repo);
 
     // Ensure the 'contracts' and 'outputDir' folders exist
@@ -109,17 +120,30 @@ export class GithubService {
     }
   }
 
-  async getSolFilesRecursive(octokit: Octokit, owner: string, repo: string, dirPath = ''): Promise<any[]> {
-    const response = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
-      owner,
-      repo,
-      path: dirPath,
-    });
+  async getSolFilesRecursive(
+    octokit: Octokit,
+    owner: string,
+    repo: string,
+    dirPath = ''
+  ): Promise<any[]> {
+    const response = await octokit.request(
+      'GET /repos/{owner}/{repo}/contents/{path}',
+      {
+        owner,
+        repo,
+        path: dirPath,
+      }
+    );
 
     const solFiles: any[] = [];
     for (const item of response.data as any[]) {
       if (item.type === 'dir') {
-        const dirFiles = await this.getSolFilesRecursive(octokit, owner, repo, item.path);
+        const dirFiles = await this.getSolFilesRecursive(
+          octokit,
+          owner,
+          repo,
+          item.path
+        );
         solFiles.push(...dirFiles);
       } else if (path.extname(item.name) === '.sol') {
         solFiles.push(item);
@@ -148,7 +172,7 @@ export class GithubService {
           active: true,
           events: ['push', 'pull_request'],
           config: {
-            url: 'https://1d94-185-65-134-213.ngrok-free.app/webhook/github-events',
+            url: 'https://ff7d-77-251-82-122.eu.ngrok.io/webhook/github-events',
             content_type: 'json',
             insecure_ssl: '0',
           },
