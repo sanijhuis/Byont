@@ -29,7 +29,8 @@ export class FileService {
         'apps',
         'backend',
         'src',
-        'contracts'
+        'contracts',
+        `${repoName}`
       );
       const solFiles = fs
         .readdirSync(contractsDir)
@@ -130,7 +131,7 @@ export class FileService {
           HostConfig: {
             Binds: [`${contractsDir}:/mnt`],
           },
-          Image: 'crytic/slither:latest',
+          Image: 'trailofbits/slither:latest',
           Cmd: [
             'slither',
             `/mnt/${filename}`,
