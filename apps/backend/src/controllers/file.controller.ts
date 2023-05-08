@@ -84,8 +84,8 @@ export class FileController {
         },
 
         Image: 'trailofbits/slither:latest',
-        Cmd: ['slither', `/mnt/${file.filename}`],
-
+        Cmd: [`slither`,  `/mnt/${file.filename}`],
+        Tty: true
 
 
       });
@@ -133,10 +133,15 @@ async function parseOutput(output: string): Promise<void> {
   try {    
     const completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
-    messages: [{role: 'user', content: 'pretend to be a parser'},{role: 'user', content: `parse the output to json where the format would be as followed:\n
-    - parameter (if available)\n
-    - errorMessage\n
-    - reference (if available)\n
+    messages: [{role: 'user', content: `parse the output to json\n
+    things to keep in mind:\n
+    every single parameter is one error\n
+    the format should be as followed:\n
+    errorNumber: {\n
+      error:\n
+      (optional) reference:\n
+    }\n\n
+    this is the output:\n
       ${output.toString()}`}],
   })
   console.log(completion.data.choices[0].message?.content);
