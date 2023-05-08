@@ -4,7 +4,7 @@ import { FileService } from 'src/services/file.service';
 
 @Controller('file')
 export class FileController {
-  constructor(private fileService: FileService) {}
+  constructor(private fileService: FileService) { }
 
   @Get('analyze-slither/:repoName')
   async analyzeSlither(
@@ -14,7 +14,7 @@ export class FileController {
     const user = req['customUser'];
     //Temporary for testing, this will be replaced with the properties of the user objects
     const tempEmail = 'meesvanberkel120@hotmail.com';
-    return this.fileService.analyzeSlither(repoName, tempEmail);
+    return this.fileService.analyzeSlither(repoName, user.email);
   }
 
   @Get('analyze-mythril/:repoName')
@@ -25,7 +25,7 @@ export class FileController {
     const user = req['customUser'];
     //Temporary for testing, this will be replaced with the properties of the user object
     const tempEmail = 'sanijhuis@live.nl';
-    return this.fileService.analyzeMythril(repoName, tempEmail);
+    return this.fileService.analyzeMythril(repoName, user.email);
     //What is should look like
     //return this.fileService.analyzeMythril(repoName, user.email);
   }

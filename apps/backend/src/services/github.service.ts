@@ -91,6 +91,19 @@ export class GithubService {
       (file: { name: string }) => path.extname(file.name) === '.sol'
     );
 
+    const contractsBaseDir = path.join(
+      appRoot.path,
+      'apps',
+      'backend',
+      'src',
+      'contracts'
+    );
+
+    // Check if the 'contracts' folder exists, if not, create it
+    if (!fs.existsSync(contractsBaseDir)) {
+      fs.mkdirSync(contractsBaseDir);
+    }
+
     const outputDir = path.join(
       appRoot.path,
       'apps',
@@ -99,6 +112,8 @@ export class GithubService {
       'contracts',
       `${repo}`
     );
+
+
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir);
     }
