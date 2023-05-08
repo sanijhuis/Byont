@@ -3,7 +3,7 @@ module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
     "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
+    "./components/**/**/**/*.{js,ts,jsx,tsx}",
     "../../packages/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
@@ -370,6 +370,7 @@ module.exports = {
     },
   },
   plugins: [
+    require("tailwindcss-animate"),
     function ({ addComponents }) {
       addComponents({
         ".container": {

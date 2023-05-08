@@ -2,12 +2,13 @@
 import { Module } from '@nestjs/common';
 import { GithubController } from '../controllers/github.controller';
 import { GithubService } from '../services/github.service';
-import { HttpModule } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
+import { UsersService } from 'src/services/users.service';
+import { PrismaService } from 'prisma/prisma.service';
 
 @Module({
-  imports: [HttpModule],
+  imports: [],
   controllers: [GithubController],
-  providers: [GithubService, JwtService],
+  providers: [GithubService, UsersService, PrismaService],
 })
 export class GithubModule {}

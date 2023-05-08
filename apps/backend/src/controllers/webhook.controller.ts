@@ -1,49 +1,44 @@
-import { Controller, Post, Headers, Body, Logger } from '@nestjs/common';
-import { createHmac } from 'crypto';
-import { Webhooks } from '@octokit/webhooks';
-import { ConfigService } from '@nestjs/config';
-
-interface WebhookBody {
-  repository: {
-    name: string;
-  };
-}
+import {
+  Controller,
+  Headers,
+  HttpException,
+  HttpStatus,
+  Post,
+  Req,
+} from '@nestjs/common';
+import { WebhookService } from 'src/services/webhook.service';
 
 @Controller('webhook')
 export class WebhookController {
-  private readonly logger = new Logger();
+  constructor(private webhookService: WebhookService) { }
 
-  @Post()
-  handleWebhook(
+  @Post('github-events')
+  async handleGithubEvent(
     @Headers('x-github-event') event: string,
-    @Headers('x-github-delivery') id: string,
-    @Headers('x-hub-signature') signature: string,
-    @Body() body: WebhookBody
-  ): string {
-    const secretStr = 'thisismylittlesecret';
-    const webhooks = new Webhooks({
-      secret: secretStr,
-    });
-    webhooks.on('push', () => {});
-    // Generate a signature for the request body using the secret
-    const hmac = createHmac('sha1', secretStr);
-    const payload = JSON.stringify(body);
-    const digest = 'sha1=' + hmac.update(payload).digest('hex');
-
-    // Verify that the signature matches the value in the x-hub-signature header
-    if (signature !== digest) {
-      console.error('Invalid signature');
-      return 'Invalid signature';
+    @Req() req: Request
+  ) {
+    const payload = req.body;
+    console.log('payload', payload);
+    if (!event) {
+      throw new HttpException('Event header missing', HttpStatus.BAD_REQUEST);
     }
 
-    // Log the event type and repository name for debugging purposes
-    this.logger.log(`Received ${event} event for ${body.repository.name}`);
-    this.logger.log({ signature });
-    this.logger.log({ digest });
-    this.logger.log({ body });
-    this.logger.log(id);
+    switch (event) {
+      case 'push':
+        this.webhookService.handlePushEvent(payload);
+        break;
 
-    // Return a 200 OK status code to confirm receipt of the webhook event
-    return 'OK';
+      case 'ping':
+        this.webhookService.handlePingEvent();
+        break;
+
+      default:
+        throw new HttpException(
+          'Unsupported event type',
+          HttpStatus.BAD_REQUEST
+        );
+    }
+
+    return { message: 'Event received' };
   }
 }

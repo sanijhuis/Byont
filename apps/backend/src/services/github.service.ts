@@ -1,83 +1,154 @@
-// src/github/github.service.ts
-import { Injectable, Req } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { Request } from 'express';
+import { Injectable } from '@nestjs/common';
 import { Octokit } from '@octokit/rest';
+import { PrismaClient, Repo } from '@prisma/client';
 import axios from 'axios';
 import { Prisma } from '@prisma/client';
+import * as fs from 'fs';
+import * as path from 'path';
+import { PrismaService } from 'prisma/prisma.service';
+import { User } from 'src/types/user.type';
+var appRoot = require('app-root-path');
 
 @Injectable()
 export class GithubService {
-  constructor(private httpService: HttpService) {}
+  constructor(private prisma: PrismaService) {
+    this.prisma = new PrismaClient();
+  }
 
-  async getAllRepos(accessToken: string): Promise<string[]> {
-    const url = 'https://api.github.com/user/repos';
-    const headers = {
-      Authorization: `token ${accessToken}`,
-      Accept: 'application/vnd.github+json',
-    };
+  async getRepos(accessToken: string, userId: number): Promise<any[]> {
+    // Initialize the Octokit client with the access token
+    const octokit = new Octokit({
+      auth: accessToken,
+    });
 
     try {
-      const response = await this.httpService.get(url, { headers }).toPromise();
-      return response!.data.map((repo: any) => repo.name);
+      // Fetch repositories
+      const response = await octokit.request('GET /user/repos');
+
+      // Extract the names of the repositories and check for webhooks
+      const reposWithWebhooks = await Promise.all(
+        response.data.map(async (repo: any) => {
+          try {
+            const webhooks = await octokit.request(
+              'GET /repos/{owner}/{repo}/hooks',
+              {
+                owner: repo.owner.login,
+                repo: repo.name,
+              }
+            );
+
+            // Create a new Repo record in the database
+            const createdRepo = await this.prisma.repo.create({
+              data: {
+                user: { connect: { id: userId } },
+                name: repo.name,
+                owner: repo.owner.login,
+              },
+            });
+
+            return {
+              ...createdRepo,
+              hasWebhook: webhooks.data.length > 0,
+            };
+          } catch (error) {
+            console.error(
+              `Error fetching webhooks for ${repo.name}:`,
+              error.message
+            );
+            return {
+              name: repo.name,
+              owner: repo.owner.login,
+              hasWebhook: false,
+            };
+          }
+        })
+      );
+
+      return reposWithWebhooks;
     } catch (error) {
-      console.error(`Error getting repositories: ${error.message}`);
+      console.error('Error fetching repositories:', error.message);
       return [];
+    } finally {
+      await this.prisma.$disconnect();
     }
   }
 
-  async getRepos(accessToken: string): Promise<string[]> {
-    const response = await axios.get('https://api.github.com/user/repos', {
-      headers: {
-        Authorization: `token ${accessToken}`,
-      },
+  async downloadSolFiles(owner: string, repo: string, accessToken): Promise<void> {
+    const octokit = new Octokit({ auth: accessToken });
+    const response = await octokit.request('GET /repos/{owner}/{repo}/contents', {
+      owner,
+      repo,
     });
 
-    // Extract the names of the repositories
-    const repoNames = response.data.map((repo: any) => repo.name);
+    const solFiles = response.data.filter((file: { name: string }) => path.extname(file.name) === '.sol');
 
-    return repoNames;
+    const contractsBaseDir = path.join(appRoot.path, 'apps', 'backend', 'src', 'contracts');
+    const outputDir = path.join(contractsBaseDir, repo);
+
+    // Ensure the 'contracts' and 'outputDir' folders exist
+    if (!fs.existsSync(contractsBaseDir)) {
+      fs.mkdirSync(contractsBaseDir);
+    }
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir);
+    }
+
+    console.log('Output directory:', outputDir);
+
+    // Write a test file to the contractsBaseDir
+    const testFilePath = path.join(contractsBaseDir, 'test.txt');
+    fs.writeFileSync(testFilePath, 'Hello, World!', 'utf8');
+
+    // Download and save .sol files
+    for (const file of solFiles) {
+      const { download_url, name } = file;
+      const { data } = await axios.get(download_url, {
+        responseType: 'arraybuffer',
+      });
+      const fileOutputPath = path.join(outputDir, name);
+      fs.writeFileSync(fileOutputPath, data);
+      console.log(`Downloaded ${name}`);
+    }
   }
 
-  async getSolFiles(accessToken: string, repoName: string) {
-    console.log(accessToken);
-    const octokit = new Octokit({ auth: accessToken });
+  async createWebhook(
+    accessToken: string,
+    user: User,
+    repoName: string
+  ): Promise<any> {
+    const octokit = new Octokit({
+      auth: accessToken,
+    });
 
     try {
-      const reposResponse = await octokit.repos.listForAuthenticatedUser({});
-      const repos = reposResponse.data;
-
-      const repo = repos.find((r) => r.name === repoName);
-
-      if (!repo) {
-        throw new Error(`Repository "${repoName}" not found.`);
-      }
-
-      const filesResponse = await octokit.repos.getContent({
-        owner: repo.owner.login,
-        repo: repo.name,
-        path: '',
-      });
-
-      const files = filesResponse.data;
-
-      if (!Array.isArray(files)) {
-        throw new Error('Unexpected response format from GitHub API.');
-      }
-
-      const solFiles = files.filter(
-        (f) => f.type === 'file' && f.name.endsWith('.sol')
+      const response = await octokit.request(
+        'POST /repos/{owner}/{repo}/hooks',
+        {
+          owner: user.username,
+          repo: repoName,
+          name: 'web',
+          active: true,
+          events: ['push', 'pull_request'],
+          config: {
+            url: 'https://1d94-185-65-134-213.ngrok-free.app/webhook/github-events',
+            content_type: 'json',
+            insecure_ssl: '0',
+          },
+          headers: {
+            accept: 'application/vnd.github+json',
+          },
+        }
       );
 
-      if (solFiles.length === 0) {
-        throw new Error(
-          `No .sol files were found in the "${repoName}" repository.`
-        );
+      if (response.status === 201) {
+        console.log('Webhook created successfully:');
+        return response.data;
+      } else {
+        console.log('Error creating webhook:', response);
       }
-
-      return solFiles;
     } catch (error) {
-      throw new Error(`Error fetching .sol files: ${error.message}`);
+      console.error('Error creating webhook:', error);
+      throw error;
     }
   }
 

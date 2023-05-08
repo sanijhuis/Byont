@@ -1,43 +1,21 @@
-import {
-  Controller,
-  Post,
-  UseInterceptors,
-  UploadedFile,
-  UseGuards,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import * as Docker from 'dockerode';
+import { Controller, Get, Param, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Configuration, OpenAIApi } from 'openai'
+import { FileService } from 'src/services/file.service';
 
 @Controller('file')
 export class FileController {
-  @Post('upload')
-  @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: {
-        fileSize: 5 * 1024 * 1024, // 5 MB
-      },
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          const filename = file.originalname;
-          cb(null, filename);
-        },
-      }),
-    })
-  )
-  // async analyzeFile(@UploadedFile() file: Express.Multer.File) {
-  //   try {
-  //     console.log(file.filename);
+  constructor(private fileService: FileService) { }
 
-  //     const docker = new Docker();
-  //     const container = await docker.createContainer({
-  //       HostConfig: {
-  //         Binds: [`${process.cwd()}/uploads:/mnt`],
-  //       },
+  @Get('analyze-slither/:repoName')
+  async analyzeSlither(
+    @Param('repoName') repoName: string,
+    @Req() req: Request
+  ) {
+    const user = req['customUser'];
+    //Temporary for testing, this will be replaced with the properties of the user objects
+    const tempEmail = 'meesvanberkel120@hotmail.com';
+    return this.fileService.analyzeSlither(repoName, user.email);
+  }
 
   //       Image: 'mythril/myth:latest',
   //       Cmd: ['analyze', `/mnt/${file.filename}`],
@@ -157,3 +135,16 @@ async function parseOutput(output: string): Promise<void> {
 
 
 
+  @Get('analyze-mythril/:repoName')
+  async analyzeMythril(
+    @Param('repoName') repoName: string,
+    @Req() req: Request
+  ) {
+    const user = req['customUser'];
+    //Temporary for testing, this will be replaced with the properties of the user object
+    const tempEmail = 'sanijhuis@live.nl';
+    return this.fileService.analyzeMythril(repoName, user.email);
+    //What is should look like
+    //return this.fileService.analyzeMythril(repoName, user.email);
+  }
+}

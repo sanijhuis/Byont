@@ -2,10 +2,27 @@
 
 import H2 from "../../../components/text/H2";
 import IconGithub from "../../../public/icons/github";
+import { ToastAction } from "@/components/ui/toaster/toast";
+import { useToast } from "@/components/ui/toaster/use-toast";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 const Page = () => {
-  const signIn = () => {
-    window.location.href = "http://localhost:3000/auth/login";
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const signIn = async () => {
+    setLoading(true);
+    try {
+      window.location.href = "http://localhost:3000/auth/login";
+    } catch (error) {
+      setLoading(false);
+      await toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: "There was a problem with your request.",
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+      });
+    }
   };
 
   return (
@@ -16,11 +33,16 @@ const Page = () => {
         </H2>
         <div className="my-3 h-[1px] w-full bg-white/60"></div>
         <button
+          disabled={loading}
           onClick={signIn}
           className="flex h-5 w-full items-center justify-center gap-2 rounded-xl bg-[#24292e] text-16 text-white"
         >
           <span>
-            <IconGithub />
+            {loading ? (
+              <Loader2 className="h-2 w-2 animate-spin" />
+            ) : (
+              <IconGithub />
+            )}
           </span>
           Continue with GitHub
         </button>

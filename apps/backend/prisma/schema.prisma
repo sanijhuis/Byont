@@ -8,17 +8,36 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  githubId  Int      @unique
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  repos     Repo[]
+  id                Int      @id @default(autoincrement())
+  username          String   @unique
+  githubAccessToken String   @unique
+  email             String   @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  repos             Repo[]
 }
 
 model Repo {
-  id     Int  @id
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-  scanOutput Json?
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id])
+  name        String
+  owner       String
+  scanResults ScanResult[]
+}
+
+model ScanResult {
+  id        Int      @id @default(autoincrement())
+  repoId    Int
+  repo      Repo     @relation(fields: [repoId], references: [id])
+  scanner   Scanner
+  filename  String
+  output    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Scanner {
+  SLITHER
+  MYTHRIL
 }
