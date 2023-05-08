@@ -72,14 +72,17 @@ export class GithubService {
     }
   }
 
+
+
   async downloadSolFiles(owner: string, repo: string, accessToken): Promise<void> {
     const octokit = new Octokit({ auth: accessToken });
     const response = await octokit.request('GET /repos/{owner}/{repo}/contents', {
       owner,
       repo,
     });
+    const solFiles = await this.getSolFilesRecursive(octokit, owner, repo);
 
-    const solFiles = response.data.filter((file: { name: string }) => path.extname(file.name) === '.sol');
+    //const solFiles = response.data.filter((file: { name: string }) => path.extname(file.name) === '.sol');
 
     const contractsBaseDir = path.join(appRoot.path, 'apps', 'backend', 'src', 'contracts');
     const outputDir = path.join(contractsBaseDir, repo);
@@ -94,10 +97,6 @@ export class GithubService {
 
     console.log('Output directory:', outputDir);
 
-    // Write a test file to the contractsBaseDir
-    const testFilePath = path.join(contractsBaseDir, 'test.txt');
-    fs.writeFileSync(testFilePath, 'Hello, World!', 'utf8');
-
     // Download and save .sol files
     for (const file of solFiles) {
       const { download_url, name } = file;
@@ -108,6 +107,26 @@ export class GithubService {
       fs.writeFileSync(fileOutputPath, data);
       console.log(`Downloaded ${name}`);
     }
+  }
+
+  async getSolFilesRecursive(octokit: Octokit, owner: string, repo: string, dirPath = ''): Promise<any[]> {
+    const response = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+      owner,
+      repo,
+      path: dirPath,
+    });
+
+    const solFiles: any[] = [];
+    for (const item of response.data as any[]) {
+      if (item.type === 'dir') {
+        const dirFiles = await this.getSolFilesRecursive(octokit, owner, repo, item.path);
+        solFiles.push(...dirFiles);
+      } else if (path.extname(item.name) === '.sol') {
+        solFiles.push(item);
+      }
+    }
+
+    return solFiles;
   }
 
   async createWebhook(

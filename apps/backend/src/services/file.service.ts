@@ -7,7 +7,6 @@ import { PrismaClient, Scanner } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { RepoService } from './repo.service';
 import { UsersService } from './users.service';
-import { SELF_DECLARED_DEPS_METADATA } from '@nestjs/common/constants';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -32,6 +31,7 @@ export class FileService {
         'contracts',
         `${repoName}`
       );
+      
       const solFiles = fs
         .readdirSync(contractsDir)
         .filter((file) => path.extname(file) === '.sol');
