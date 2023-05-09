@@ -96,7 +96,7 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
                         <AccordionContent>
                           {issue.title && (
                             <>
-                              <p className="pb-1 text-15 font-semibold text-black">
+                              <p className="pb-[5px] text-15 font-semibold text-black">
                                 Title
                               </p>
                               <p className="pr-2 text-14 font-normal text-black">
@@ -107,7 +107,7 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
                           )}
                           {issue.description && (
                             <>
-                              <p className="pb-1 text-15 font-semibold text-black">
+                              <p className="pb-[5px] text-15 font-semibold text-black">
                                 Description
                               </p>
                               <p className="pr-2 text-14 font-normal text-black">
@@ -119,7 +119,7 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
 
                           {issue.code && (
                             <>
-                              <p className="pb-1 text-15 font-semibold text-black">
+                              <p className="pb-[5px] text-15 font-semibold text-black">
                                 Code
                               </p>
                               <p className="text-14 font-normal text-black">
@@ -131,7 +131,7 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
 
                           {issue.function && (
                             <>
-                              <p className="pb-1 text-15 font-semibold text-black">
+                              <p className="pb-[5px] text-15 font-semibold text-black">
                                 function
                               </p>
                               <p className="text-14 font-normal text-black">

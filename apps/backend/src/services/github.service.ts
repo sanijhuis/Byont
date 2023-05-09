@@ -172,7 +172,7 @@ export class GithubService {
           active: true,
           events: ['push', 'pull_request'],
           config: {
-            url: 'https://27da-77-251-82-122.eu.ngrok.io/webhook/github-events',
+            url: 'https://d237-77-251-82-122.eu.ngrok.io/webhook/github-events',
             content_type: 'json',
             insecure_ssl: '0',
           },
