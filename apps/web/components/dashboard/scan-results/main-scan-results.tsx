@@ -10,12 +10,19 @@ type MainScanResultsProps = React.ComponentProps<"section"> & {
   slug: string;
 };
 
+export const OutputSchema = z.object({
+  output: z.string(),
+  scanner: z.string(),
+  filename: z.string(),
+});
+export type Output = z.infer<typeof OutputSchema>;
+
 const scanResultSchema = z.object({
   id: z.number(),
   repoId: z.number(),
   scanner: z.string(),
   filename: z.string(),
-  output: z.string(),
+  output: z.array(OutputSchema),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -29,11 +36,22 @@ type ScanResultsData = z.infer<typeof scanResultsSchema>;
 const MainScanResults = ({ slug, ...props }: MainScanResultsProps) => {
   const [data, setData] = useState<ScanResultsData>();
   const [selected, setSelected] = useState<number>();
+  const [checked, setChecked] = useState<boolean>(false);
 
   useEffect(() => {
     getScanResults(slug).then(res => {
-      const parsedData = scanResultsSchema.parse(res);
-      setData(getItemsInAscendingDateOrderAndClosestToNowFirst(parsedData));
+      console.log("newres:", res);
+
+      if (res.length !== 0) {
+        const parsedData = scanResultsSchema.parse(res);
+        setData(sortByDate(parsedData));
+
+        if (sortByDate(parsedData)[0]?.id !== undefined) {
+          setSelected(sortByDate(parsedData)[0].id);
+        }
+      } else {
+        setChecked(true);
+      }
     });
   }, []);
 
@@ -41,29 +59,12 @@ const MainScanResults = ({ slug, ...props }: MainScanResultsProps) => {
     console.log(data);
   }, [data]);
 
-  function getItemsInAscendingDateOrderAndClosestToNowFirst(
-    arr: ScanResultsData
-  ): ScanResultsData {
-    const time = Date.now();
-
-    const [closest, ...rest] = Array.from(arr).sort((a, b) => {
-      const aTime = new Date(a.createdAt).getTime();
-      const bTime = new Date(b.createdAt).getTime();
-
-      const aDelta = Math.abs(time - aTime);
-      const bDelta = Math.abs(time - bTime);
-
-      return aDelta - bDelta;
-    });
-
-    return [
-      closest,
-      ...rest.sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      ),
-    ];
-  }
+  const sortByDate = (data: ScanResultsData) =>
+    data
+      .sort(({ createdAt: a }, { createdAt: b }) =>
+        a < b ? -1 : a > b ? 1 : 0
+      )
+      .reverse();
 
   const formatDate = (input: string) => {
     const date = new Date(input);
@@ -78,6 +79,8 @@ const MainScanResults = ({ slug, ...props }: MainScanResultsProps) => {
 
     return formattedDate;
   };
+
+  if (checked) return <p>no data</p>;
 
   if (!data) return <p>loading...</p>;
 
@@ -97,7 +100,7 @@ const MainScanResults = ({ slug, ...props }: MainScanResultsProps) => {
         </div>
         <div className="col-span-2">
           {/* @ts-ignore */}
-          <SingleScanResult id={selected} />
+          <SingleScanResult param={slug} id={selected} />
         </div>
       </div>
     </section>
