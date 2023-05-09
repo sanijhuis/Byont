@@ -33,13 +33,37 @@ const MainScanResults = ({ slug, ...props }: MainScanResultsProps) => {
   useEffect(() => {
     getScanResults(slug).then(res => {
       const parsedData = scanResultsSchema.parse(res);
-      setData(parsedData);
+      setData(getItemsInAscendingDateOrderAndClosestToNowFirst(parsedData));
     });
   }, []);
 
   useEffect(() => {
     console.log(data);
   }, [data]);
+
+  function getItemsInAscendingDateOrderAndClosestToNowFirst(
+    arr: ScanResultsData
+  ): ScanResultsData {
+    const time = Date.now();
+
+    const [closest, ...rest] = Array.from(arr).sort((a, b) => {
+      const aTime = new Date(a.createdAt).getTime();
+      const bTime = new Date(b.createdAt).getTime();
+
+      const aDelta = Math.abs(time - aTime);
+      const bDelta = Math.abs(time - bTime);
+
+      return aDelta - bDelta;
+    });
+
+    return [
+      closest,
+      ...rest.sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      ),
+    ];
+  }
 
   const formatDate = (input: string) => {
     const date = new Date(input);
