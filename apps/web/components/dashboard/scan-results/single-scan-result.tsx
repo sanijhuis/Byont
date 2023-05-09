@@ -1,3 +1,9 @@
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs/tabs";
 import getSingleScanResults from "@/services/getSingleScanResults";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -39,7 +45,7 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
   }, [id]);
 
   useEffect(() => {
-    console.log(data);
+    console.log(data?.output[0].output);
   }, [data]);
 
   //   function formatJson(errorString: any) {
@@ -57,9 +63,23 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
 
   return (
     <section {...props}>
-      <div className="border-[1px] border-green bg-softBlack p-2">
-        {/* <pre>{JSON.stringify(formatJson(data.output))}</pre> */}
-      </div>
+      <Tabs defaultValue={data.output[0].filename}>
+        <TabsList>
+          {data.output.map((item, index: number) => (
+            <TabsTrigger key={index} value={item.filename}>
+              {item.filename}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        {data.output.map((item, index: number) => (
+          <TabsContent key={index} value={item.filename}>
+            <div className="rounded-md border-[1px] border-green bg-softBlack p-2">
+              {/* <pre>{JSON.stringify(formatJson(data.output))}</pre> */}
+              {item.output}
+            </div>
+          </TabsContent>
+        ))}
+      </Tabs>
     </section>
   );
 };
