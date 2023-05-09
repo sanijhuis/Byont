@@ -47,7 +47,6 @@ const Page = () => {
         })}
       >
         <ListRepoActive grid={grid} />
-        {/* <CardRepo grid={grid} /> */}
       </div>
     </section>
   );
