@@ -76,9 +76,9 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
         {data.output.map((item, index: number) => (
           <TabsContent key={index} value={item.filename}>
             <div className="flex flex-col gap-2 rounded-md border-[1px] border-green bg-softBlack p-2">
-              <Accordion type="single" collapsible>
-                {item.output && Object.keys(item.output).length > 0 ? (
-                  formatJson(item.output).issues.map(
+              {item.output && Object.keys(item.output).length > 0 ? (
+                <Accordion type="single" collapsible>
+                  {formatJson(item.output).issues.map(
                     (issue: any, index: number) => (
                       <AccordionItem
                         className="bg-white px-1 "
@@ -92,6 +92,7 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
                           <span className="flex w-1/2">
                             Severity: {issue.severity}
                           </span>
+                          ds
                         </AccordionTrigger>
                         <AccordionContent>
                           {issue.title && (
@@ -142,13 +143,13 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
                         </AccordionContent>
                       </AccordionItem>
                     )
-                  )
-                ) : (
-                  <div className="text-16 font-semibold text-white">
-                    No issues found.
-                  </div>
-                )}
-              </Accordion>
+                  )}
+                </Accordion>
+              ) : (
+                <div className="text-16 font-semibold text-white">
+                  No issues found.
+                </div>
+              )}
             </div>
           </TabsContent>
         ))}
