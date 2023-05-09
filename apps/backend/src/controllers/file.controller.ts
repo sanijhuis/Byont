@@ -1,7 +1,10 @@
-import { Controller, Get, Param, Req } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import multer, { diskStorage, memoryStorage } from 'multer';
 import { FileService } from 'src/services/file.service';
-
+import { parseOutput } from 'src/utils/output-parser';
+import  Multer from 'multer';
 @Controller('file')
 export class FileController {
   constructor(private fileService: FileService) { }
@@ -29,4 +32,26 @@ export class FileController {
     //What is should look like
     //return this.fileService.analyzeMythril(repoName, user.email);
   }
-}
+
+  @Post('upload')
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5 MB
+      },
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const filename = file.originalname;
+          cb(null, filename);
+        },
+      }),
+    })
+  ) async analyzeSingleFileSlither(@UploadedFile() file: Express.Multer.File){
+    this.fileService.analyzeSingleFile(file)
+
+  }
+  
+  }
+
