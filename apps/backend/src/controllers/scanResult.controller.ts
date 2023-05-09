@@ -9,4 +9,12 @@ export class ScanResultController {
   async getScanResultsByRepoName(@Param('repoName') repoName: string) {
     return this.scanResultService.getScanResultsByRepoName(repoName);
   }
+
+  @Get(':repoName/:id')
+  async getScanResultByRepoNameAndId(
+    @Param('repoName') repoName: string,
+    @Param('id') id: number
+  ) {
+    return this.scanResultService.getScanResultByRepoNameAndId(repoName, id);
+  }
 }
