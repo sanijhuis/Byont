@@ -9,8 +9,15 @@ import { RepoService } from './repo.service';
 import { UsersService } from './users.service';
 import { ConfigService } from '@nestjs/config';
 
+type ScanResultItem = {
+  scanner: Scanner;
+  filename: string;
+  output: any; // You can use a more specific type here if you know the structure of the output
+};
+
 @Injectable()
 export class FileService {
+
   constructor(
     private prisma: PrismaService,
     private repoService: RepoService,
@@ -31,11 +38,12 @@ export class FileService {
         'contracts',
         `${repoName}`
       );
-      
+
       const solFiles = fs
         .readdirSync(contractsDir)
         .filter((file) => path.extname(file) === '.sol');
       console.log(contractsDir);
+      const scanResults: ScanResultItem[] = [];
       for (const filename of solFiles) {
         console.log(`Analyzing ${filename}`);
 
@@ -64,7 +72,6 @@ export class FileService {
         });
         console.log('logsdata', logsData);
 
-        // Wrap logs.on('end', ...) inside a Promise and await it
         await new Promise<void>((resolve, reject) => {
           logs.on('end', async () => {
             const output = this.removeNonPrintableChars(logsData);
@@ -76,14 +83,14 @@ export class FileService {
             );
             const GPTResponse = await parseOutput(output, this.configService);
             console.log('GPTResponse', GPTResponse);
-            await this.prisma.scanResult.create({
-              data: {
-                repo: { connect: { id: repoId } },
-                scanner: Scanner.MYTHRIL,
-                filename: filename,
-                output: output,
-              },
+
+            // Push the result into the scanResults array
+            scanResults.push({
+              scanner: Scanner.MYTHRIL,
+              filename: filename,
+              output: output,
             });
+
             await container.remove({ force: true });
             resolve();
           });
@@ -92,6 +99,22 @@ export class FileService {
           });
         });
       }
+
+      // Create a single scanResult entry with the scanResults array
+      const userId = await this.userService.findIdByEmail(user);
+      const repoId = await this.repoService.findRepoByNameAndUserId(
+        repoName,
+        userId!
+      );
+      await this.prisma.scanResult.create({
+        data: {
+          repo: { connect: { id: repoId } },
+          scanner: Scanner.MYTHRIL,
+          filename: 'Multiple Files',
+          output: scanResults,
+        },
+      });
+
     } catch (err) {
       console.error('Error creating or starting container:', err);
     }
