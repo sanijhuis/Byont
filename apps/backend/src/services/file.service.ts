@@ -1,4 +1,4 @@
-import { Injectable, Query } from '@nestjs/common';
+import { Injectable, Query, UploadedFile } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as Docker from 'dockerode';
@@ -189,6 +189,48 @@ export class FileService {
       console.error('Error creating or starting container:', err);
     }
   }
+    async analyzeSingleFile(file: Express.Multer.File) {
+      try {
+        console.log(file.filename);
+  
+        const docker = new Docker();
+        const container = await docker.createContainer({
+          HostConfig: {
+            Binds: [`${process.cwd()}/uploads:/mnt`],
+          },
+          Image: 'trailofbits/slither:latest',
+          Cmd: [`slither`,  `/mnt/${file.filename}`],
+          Tty: true  
+        });
+  
+  
+        await container.start();
+  
+        const logs = await container.logs({
+          follow: true,
+          stdout: true,
+          stderr: true,
+        });
+  
+        let logsData = '';
+        logs.pipe(process.stdout);
+        logs.on('data', async (data) => {
+          logsData += data;
+  
+        });
+  
+        logs.on('end', async () => {
+          await parseOutput(logsData, this.configService);
+          container.remove({ force: true });
+        });
+  
+  
+  
+  
+      } catch (err) {
+        console.error('Error creating or starting container:', err);
+      }
+  }
 
   removeNonPrintableChars(s: string): string {
     return s
@@ -197,7 +239,7 @@ export class FileService {
       .join('');
   }
 
-  delay(ms) {
+  delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+  } 
 }
