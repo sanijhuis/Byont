@@ -1,4 +1,10 @@
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion/accordion";
+import {
   Tabs,
   TabsContent,
   TabsList,
@@ -44,21 +50,17 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
     });
   }, [id]);
 
-  useEffect(() => {
-    console.log(data?.output[0].output);
-  }, [data]);
+  function formatJson(errorString: any) {
+    let sanitizedJsonString = errorString;
+    if (sanitizedJsonString?.startsWith("~")) {
+      sanitizedJsonString = sanitizedJsonString.substring(1);
+    }
+    const json = JSON.parse(sanitizedJsonString);
 
-  //   function formatJson(errorString: any) {
-  //     let sanitizedJsonString = errorString;
-  //     if (sanitizedJsonString.startsWith("~")) {
-  //       sanitizedJsonString = sanitizedJsonString.substring(1);
-  //     }
-  //     const json = JSON.parse(sanitizedJsonString);
+    console.log(json);
 
-  //     console.log(json);
-
-  //     return json;
-  //   }
+    return json;
+  }
   if (!data) return <p>loading...</p>;
 
   return (
@@ -73,9 +75,80 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
         </TabsList>
         {data.output.map((item, index: number) => (
           <TabsContent key={index} value={item.filename}>
-            <div className="rounded-md border-[1px] border-green bg-softBlack p-2">
-              {/* <pre>{JSON.stringify(formatJson(data.output))}</pre> */}
-              {item.output}
+            <div className="flex flex-col gap-2 rounded-md border-[1px] border-green bg-softBlack p-2">
+              <Accordion type="single" collapsible>
+                {item.output && Object.keys(item.output).length > 0 ? (
+                  formatJson(item.output).issues.map(
+                    (issue: any, index: number) => (
+                      <AccordionItem
+                        className="bg-white px-1 "
+                        key={index}
+                        value={index.toString()}
+                      >
+                        <AccordionTrigger className="flex flex-row">
+                          <span className="flex w-1/2">
+                            Line: {issue.lineno}
+                          </span>
+                          <span className="flex w-1/2">
+                            Severity: {issue.severity}
+                          </span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          {issue.title && (
+                            <>
+                              <p className="pb-1 text-15 font-semibold text-black">
+                                Title
+                              </p>
+                              <p className="pr-2 text-14 font-normal text-black">
+                                {issue.title}
+                              </p>
+                              <div className="my-[15px] h-[1px] w-full bg-black"></div>
+                            </>
+                          )}
+                          {issue.description && (
+                            <>
+                              <p className="pb-1 text-15 font-semibold text-black">
+                                Description
+                              </p>
+                              <p className="pr-2 text-14 font-normal text-black">
+                                {issue.description}
+                              </p>
+                              <div className="my-[15px] h-[1px] w-full bg-black"></div>
+                            </>
+                          )}
+
+                          {issue.code && (
+                            <>
+                              <p className="pb-1 text-15 font-semibold text-black">
+                                Code
+                              </p>
+                              <p className="text-14 font-normal text-black">
+                                {issue.code}
+                              </p>
+                              <div className="my-[15px] h-[1px] w-full bg-black"></div>
+                            </>
+                          )}
+
+                          {issue.function && (
+                            <>
+                              <p className="pb-1 text-15 font-semibold text-black">
+                                function
+                              </p>
+                              <p className="text-14 font-normal text-black">
+                                {issue.function}
+                              </p>
+                            </>
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                    )
+                  )
+                ) : (
+                  <div className="text-16 font-semibold text-white">
+                    No issues found.
+                  </div>
+                )}
+              </Accordion>
             </div>
           </TabsContent>
         ))}

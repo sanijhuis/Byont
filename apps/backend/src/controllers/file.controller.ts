@@ -1,13 +1,23 @@
-import { BadRequestException, Controller, Get, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multer, { diskStorage, memoryStorage } from 'multer';
 import { FileService } from 'src/services/file.service';
 import { parseOutput } from 'src/utils/output-parser';
-import  Multer from 'multer';
+import Multer from 'multer';
 @Controller('file')
 export class FileController {
-  constructor(private fileService: FileService) { }
+  constructor(private fileService: FileService) {}
 
   @Get('analyze-slither/:repoName')
   async analyzeSlither(
@@ -48,10 +58,8 @@ export class FileController {
         },
       }),
     })
-  ) async analyzeSingleFileSlither(@UploadedFile() file: Express.Multer.File){
-    this.fileService.analyzeSingleFile(file)
-
+  )
+  async analyzeSingleFileSlither(@UploadedFile() file: Express.Multer.File) {
+    this.fileService.analyzeSingleFile(file);
   }
-  
-  }
-
+}

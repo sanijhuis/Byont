@@ -17,7 +17,6 @@ type ScanResultItem = {
 
 @Injectable()
 export class FileService {
-
   constructor(
     private prisma: PrismaService,
     private repoService: RepoService,
@@ -114,7 +113,6 @@ export class FileService {
           output: scanResults,
         },
       });
-
     } catch (err) {
       console.error('Error creating or starting container:', err);
     }
@@ -212,47 +210,50 @@ export class FileService {
       console.error('Error creating or starting container:', err);
     }
   }
-    async analyzeSingleFile(file: Express.Multer.File) {
-      try {
-        console.log(file.filename);
-  
-        const docker = new Docker();
-        const container = await docker.createContainer({
-          HostConfig: {
-            Binds: [`${process.cwd()}/uploads:/mnt`],
-          },
-          Image: 'trailofbits/slither:latest',
-          Cmd: [`slither`,  `/mnt/${file.filename}`],
-          Tty: true  
-        });
-  
-  
-        await container.start();
-  
-        const logs = await container.logs({
-          follow: true,
-          stdout: true,
-          stderr: true,
-        });
-  
-        let logsData = '';
-        logs.pipe(process.stdout);
-        logs.on('data', async (data) => {
-          logsData += data;
-  
-        });
-  
+
+  async analyzeSingleFile(file: Express.Multer.File) {
+    try {
+      console.log(file.filename);
+
+      const docker = new Docker();
+      const container = await docker.createContainer({
+        HostConfig: {
+          Binds: [`${process.cwd()}/uploads:/mnt`],
+        },
+        Image: 'trailofbits/slither:latest',
+        Cmd: [`slither`, `/mnt/${file.filename}`],
+        Tty: true,
+      });
+
+      await container.start();
+
+      const logs = await container.logs({
+        follow: true,
+        stdout: true,
+        stderr: true,
+      });
+
+      let logsData = '';
+      logs.pipe(process.stdout);
+      logs.on('data', async (data) => {
+        logsData += data;
+      });
+
+      await new Promise<void>((resolve) => {
         logs.on('end', async () => {
           await parseOutput(logsData, this.configService);
           container.remove({ force: true });
+          console.log('test:', logsData);
+          resolve();
         });
-  
-  
-  
-  
-      } catch (err) {
-        console.error('Error creating or starting container:', err);
-      }
+      });
+      console.log('q2ewef:', logsData);
+      const test = await JSON.stringify(logsData);
+      return test;
+    } catch (err) {
+      console.error('Error creating or starting container:', err);
+      throw err;
+    }
   }
 
   removeNonPrintableChars(s: string): string {
@@ -264,5 +265,5 @@ export class FileService {
 
   delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
-  } 
+  }
 }

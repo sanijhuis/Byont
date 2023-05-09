@@ -9,8 +9,7 @@ type HeaderDashboardProps = React.ComponentProps<"div"> & {};
 let tabs = [
   { id: "/dashboard", label: "Dashboard" },
   { id: "/dashboard/new", label: "Add new" },
-  { id: "/Information", label: "Information" },
-  {id: "/dashboard/single", label: "Single file" },
+  { id: "/dashboard/single", label: "Single file" },
 ];
 
 type tabs = {
