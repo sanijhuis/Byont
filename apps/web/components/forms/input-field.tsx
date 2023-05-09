@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import fetchWithCredentials from "../../app/utils/fetchWithCredentials";
+import fetchWithCredentials from "@/utils/fetchWithCredentials";
 
 const InputFile = () => {
   const {

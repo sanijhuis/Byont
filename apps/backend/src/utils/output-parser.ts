@@ -9,24 +9,23 @@ export async function parseOutput(
     apiKey: configService.get('OPEN_AI_API_KEY'),
   });
   const openai = new OpenAIApi(configuration);
-  const parseMessage = [
-    {
-      role: 'assistant',
-      content: `parse the following output to json where the format would be as followed:
-                           - Type of error
-                           - error message
-                           - (if available) reference. 
-                           
-                           this is the output: + ${output}`,
-    },
-  ];
-  try {
-    const result = await openai.createCompletion({
-      model: 'gpt-3.5-turbo',
-      prompt: parseMessage,
-      temperature: 0.6,
-    });
-  } catch (error) {
+  try {    
+    const completion = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages: [{role: 'user', content: 
+    `parse the output to json\n
+    things to keep in mind:\n
+    every single parameter is one error\n
+    the format should be as followed:\n
+    errorNumber: {\n
+      error:\n
+      (optional) reference:\n
+    }\n\n
+    this is the output:\n
+      ${output.toString()}`}],
+  })
+  console.log(completion.data.choices[0].message?.content);
+   } catch (error) {
     if (error.response) {
       console.log('Error response status:', error.response.status);
       console.log('Error response data:', error.response.data);
