@@ -82,7 +82,7 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
                     formatJson(item.output).issues.map(
                       (issue: any, index: number) => (
                         <AccordionItem
-                          className="bg-white px-1 "
+                          className="rounded-md bg-white px-1"
                           key={index}
                           value={index.toString()}
                         >
