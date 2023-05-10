@@ -133,7 +133,7 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
                             {issue.function && (
                               <>
                                 <p className="pb-[5px] text-15 font-semibold text-black">
-                                  function
+                                  Function
                                 </p>
                                 <p className="text-14 font-normal text-black">
                                   {issue.function}
