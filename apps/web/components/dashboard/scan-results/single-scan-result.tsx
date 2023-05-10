@@ -93,7 +93,6 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
                             <span className="flex w-1/2">
                               Severity: {issue.severity}
                             </span>
-                            ds
                           </AccordionTrigger>
                           <AccordionContent>
                             {issue.title && (
@@ -147,7 +146,9 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
                     )
                   ) : (
                     <div>
-                      <p className="text-white text-15">{formatJson(item.output).error}</p>
+                      <p className="text-15 text-white">
+                        {formatJson(item.output).error}
+                      </p>
                     </div>
                   )}
                 </Accordion>
