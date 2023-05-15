@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Octokit } from '@octokit/rest';
 import { PrismaClient, Repo } from '@prisma/client';
 import axios from 'axios';
@@ -10,7 +11,7 @@ var appRoot = require('app-root-path');
 
 @Injectable()
 export class GithubService {
-  constructor(private prisma: PrismaService) {
+  constructor(private prisma: PrismaService, private configService: ConfigService) {
     this.prisma = new PrismaClient();
   }
 
@@ -172,7 +173,7 @@ export class GithubService {
           active: true,
           events: ['push', 'pull_request'],
           config: {
-            url: 'https://b97b-92-60-40-219.ngrok-free.app/webhook/github-events',
+            url: this.configService.get("NGROK_URL") + `/webhook/github-events`,
             content_type: 'json',
             insecure_ssl: '0',
           },
