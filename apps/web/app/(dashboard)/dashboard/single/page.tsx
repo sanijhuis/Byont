@@ -5,6 +5,7 @@ import InputFile from '@/components/forms/input-field';
 import Paragraph from '@/components/text/paragraph';
 import AnimatedTextWord from '@/components/animations/AnimatedText';
 import H2 from '@/components/text/H2';
+import SingleFileResult from '@/components/dashboard/scan-results/single-file-result';
 function fileOnly() {
     return (
         <section className="bg-[#111] pb-12">
@@ -47,8 +48,12 @@ function fileOnly() {
                 <InputFile />
               </div>
             </InViewFadeIn>
+            <SingleFileResult output={"test"} />
             </div>
+
+            
         </section>
+        
       );
 }
 

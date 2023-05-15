@@ -3,7 +3,6 @@
 import Paragraph from "../text/paragraph";
 import CardOutline from "../ui/card/card-outline";
 import { cn } from "@/lib/merge-tailwind";
-import clsx from "clsx";
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
 import Link from "next/link";
 import { MouseEvent, useState } from "react";
@@ -11,9 +10,10 @@ import { MouseEvent, useState } from "react";
 type CardRepoProps = React.ComponentProps<"article"> & {
   grid: boolean;
   title: string;
+  owner: string;
 };
 
-const CardRepo = ({ grid, title, ...props }: CardRepoProps) => {
+const CardRepo = ({ grid, title, owner, ...props }: CardRepoProps) => {
   const [mouseHover, setMouseHover] = useState({
     mouseX: useMotionValue(0),
     mouseY: useMotionValue(0),
@@ -46,33 +46,33 @@ const CardRepo = ({ grid, title, ...props }: CardRepoProps) => {
           <div
             onMouseMove={handleMouseMove}
             className={cn("group grid", {
-              " grid h-[200px] grid-cols-1 p-2": grid,
-              " grid h-[150px] grid-cols-2 p-2": !grid,
+              " grid h-[170px] grid-cols-1 p-2": grid,
+              " grid h-[100px] grid-cols-2 p-2": !grid,
             })}
           >
             <Paragraph
-              className="col-span-1"
+              className={cn("col-span-1", {
+                "flex items-center": !grid,
+              })}
               color="white"
               size="lg"
               fontWeight="medium"
             >
               {title}
             </Paragraph>
+
             <Paragraph
-              className="col-span-1 opacity-80"
+              className={cn(
+                "flex-end col-span-1 mt-auto flex flex-col opacity-80",
+                {
+                  "my-auto items-end": !grid,
+                }
+              )}
               color="white"
               size="sm"
               fontWeight="medium"
             >
-              Card 1fs
-            </Paragraph>
-            <Paragraph
-              className="flex-end col-span-1 mt-auto flex flex-col opacity-80"
-              color="white"
-              size="sm"
-              fontWeight="medium"
-            >
-              Card 1asfd
+              Owner: {owner}
             </Paragraph>
           </div>
         </Link>

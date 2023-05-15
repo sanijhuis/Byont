@@ -30,7 +30,7 @@ const Page = () => {
               className="opacity-70 mx-auto mt-2 max-w-[700px] text-center"
             >
               We are a team of developers who are passionate about building
-              applications that are easy to use and solve sequrity problems.
+              applications that are easy to use and solve security problems.
             </Paragraph>
             <ButtonAnimation
               className="mx-auto mt-3"

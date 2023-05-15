@@ -7,7 +7,7 @@ const Page = async () => {
     <section className="bg-[#111] py-12">
       <div className="container pb-3">
         <H2 color="white" size="sm" fontWeight="medium">
-          Activate scan for your repo
+          Activate scan for your repository
         </H2>
         <Paragraph
           className="pt-2 opacity-80"
@@ -15,7 +15,7 @@ const Page = async () => {
           size="md"
           fontWeight="medium"
         >
-          Activate your repo to start scanning for vulnerabilities.
+          Activate your repository to start scanning for vulnerabilities.
         </Paragraph>
       </div>
       <div className="container grid grid-cols-3">

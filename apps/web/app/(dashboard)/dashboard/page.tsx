@@ -9,14 +9,13 @@ import ListRepoActive from "@/components/dashboard/list-repo-active";
 import { cn } from "@/lib/merge-tailwind";
 import clsx from "clsx";
 import { LayoutGrid, List } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
 const Page = () => {
   const [grid, setGrid] = useState<boolean>(true);
 
   return (
-    <section className="bg-[#111] py-3">
+    <section className="min-h-screen bg-[#111] py-3">
       <div className="container flex">
         <nav className="ml-auto flex gap-1">
           <menu className="flex h-[44px] flex-row items-center gap-[5px] rounded-md border-[1px] border-green/20 bg-black p-[5px]">
@@ -47,7 +46,6 @@ const Page = () => {
         })}
       >
         <ListRepoActive grid={grid} />
-        {/* <CardRepo grid={grid} /> */}
       </div>
     </section>
   );

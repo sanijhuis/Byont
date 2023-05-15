@@ -35,7 +35,12 @@ const ListRepoActive = ({ grid }: Props): JSX.Element => {
   return (
     <>
       {repos.map((repo: Repo, index: number) => (
-        <CardRepo key={index} title={repo.name} grid={grid} />
+        <CardRepo
+          owner={repo.owner}
+          key={index}
+          title={repo.name}
+          grid={grid}
+        />
       ))}
     </>
   );

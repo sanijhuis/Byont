@@ -1,5 +1,5 @@
-import { useForm } from "react-hook-form";
 import fetchWithCredentials from "@/utils/fetchWithCredentials";
+import { useForm } from "react-hook-form";
 
 const InputFile = () => {
   const {
@@ -12,14 +12,14 @@ const InputFile = () => {
     const file = data.file[0];
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetchWithCredentials("http://localhost:3000/file/upload", {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-      mode: 'no-cors'
-    });
-
-    console.log(res);
+    const res = await fetchWithCredentials(
+      "http://localhost:3000/file/upload",
+      {
+        method: "POST",
+        body: formData,
+        mode: "no-cors",
+      }
+    );
   };
 
   return (
