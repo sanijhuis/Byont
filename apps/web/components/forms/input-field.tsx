@@ -17,11 +17,9 @@ const InputFile = () => {
       {
         method: "POST",
         body: formData,
+        mode: "no-cors",
       }
     );
-
-    const res2 = await res.json();
-    console.log(res2);
   };
 
   return (
