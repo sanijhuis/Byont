@@ -217,12 +217,12 @@ export class FileService {
 
   async createContainer(file: Express.Multer.File) {
     const container = await this.docker.createContainer({
-        Image: 'trailofbits/eth-security-toolbox',
-        name: 'slither',
-        Tty: true,
-        HostConfig: {
-            Binds: [`${process.cwd()}/uploads:/mnt`]
-        },
+      Image: 'trailofbits/eth-security-toolbox',
+      name: 'slither',
+      Tty: true,
+      HostConfig: {
+        Binds: [`${process.cwd()}/uploads:/mnt`]
+      },
     });
 
     // Start the container
@@ -231,20 +231,22 @@ export class FileService {
     // Check if the container is running before proceeding
     let isRunning = false;
     while (!isRunning) {
-        const data = await container.inspect();
-        if (data.State.Running) {
-            isRunning = true;
-        } else {
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1s before next check
-        }
+      const data = await container.inspect();
+      if (data.State.Running) {
+        isRunning = true;
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1s before next check
+      }
     }
 
     await this.execDeleteFile(file, container);
-    await this.execAnalyzeFile(file, container);
+    const data = await this.execAnalyzeFile(file, container);
+    await parseOutput(data, this.configService)
+    console.log('GigaChatGPT', data)
     await this.delay(1000)
     //await this.execPrintJson(file, container);
 
-}
+  }
 
 
   removeNonPrintableChars(s: string): string {
@@ -266,26 +268,40 @@ export class FileService {
         AttachStdout: true,
         AttachStderr: true
       });
-      await exec1.start({hijack: true, stdin: true});
+      await exec1.start({ hijack: true, stdin: true });
       console.log('deleted previous json file output if it exists');
     } catch (err) {
       console.error('Error deleting file:', err);
     }
   }
 
-  async execAnalyzeFile(file: Express.Multer.File, container: Docker.Container) {
+  async execAnalyzeFile(file: Express.Multer.File, container: Docker.Container): Promise<string> {
     const exec2 = await container.exec({
       Cmd: ['slither', `/mnt/${file.filename}`, '--json', `/mnt/${file.filename}.json`, '--print', 'human-summary'],
       AttachStdout: true,
       AttachStderr: true
     });
-    const execStream2 = await exec2.start({hijack: true, stdin: true});
-
+    const execStream2 = await exec2.start({ hijack: true, stdin: true });
+  
     // Log the output of the second command
     let logStream2 = new Stream.PassThrough();
-    logStream2.on('data', (chunk) => console.log(chunk.toString('utf8')));
+    let output = '';
+    logStream2.on('data', (chunk) => {
+      const chunkAsString = chunk.toString('utf8');
+      console.log(chunkAsString);
+      output += chunkAsString;
+    });
+  
     exec2.modem.demuxStream(execStream2, logStream2, logStream2);
-    execStream2.on('end', () => logStream2.end());
+  
+    return new Promise((resolve, reject) => {
+      execStream2.on('end', () => {
+        logStream2.end();
+        resolve(output);
+        container.remove({force : true})
+      });
+      execStream2.on('error', reject);
+    });
   }
 
   async execPrintJson(file: Express.Multer.File, container: Docker.Container) {
@@ -295,13 +311,59 @@ export class FileService {
       AttachStderr: true
     });
 
-    const execStream3 = await exec3.start({hijack: true, stdin: true});
+    const execStream3 = await exec3.start({ hijack: true, stdin: true });
 
     let logStream3 = new Stream.PassThrough();
     logStream3.on('data', (chunk) => console.log(chunk.toString('utf8')));
     exec3.modem.demuxStream(execStream3, logStream3, logStream3);
     execStream3.on('end', () => logStream3.end());
+    
   }
 
-  
+
+  async analyzeMythrilSingleFile(file: Express.Multer.File) {
+
+    const docker = new Docker();
+    const container = await docker.createContainer({
+      HostConfig: {
+        Binds: [`${process.cwd()}/uploads:/mnt`],
+      },
+
+      Image: 'mythril/myth:latest',
+      Cmd: ['analyze', `/mnt/${file.filename}`, '-o', 'json'],
+    });
+
+    await container.start();
+
+    const logs = await container.logs({
+      follow: true,
+      stdout: true,
+      stderr: true,
+    });
+
+    let logsData = '';
+    logs.pipe(process.stdout);
+    logs.on('data', async (data) => {
+      logsData += data;
+    });
+    console.log('logsdata', logsData);
+
+    await new Promise<void>((resolve, reject) => {
+      logs.on('end', async () => {
+        const output = this.removeNonPrintableChars(logsData);
+        console.log('output with no characters', output);
+        const GPTResponse = await parseOutput(output, this.configService);
+        console.log('GPTResponse', GPTResponse);
+        // Push the result into the scanResults array
+        await container.remove({ force: true });
+        resolve();
+      });
+      logs.on('error', (err) => {
+        reject(err);
+      });
+    });
+
+  }
+
+
 }

@@ -15,7 +15,7 @@ import { diskStorage } from 'multer';
 import { FileService } from 'src/services/file.service';
 @Controller('file')
 export class FileController {
-  constructor(private fileService: FileService) {}
+  constructor(private fileService: FileService) { }
 
   @Get('analyze-slither/:repoName')
   async analyzeSlither(
@@ -41,7 +41,7 @@ export class FileController {
     //return this.fileService.analyzeMythril(repoName, user.email);
   }
 
-  @Post('upload')
+  @Post('uploadSlither')
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
     FileInterceptor('file', {
@@ -58,6 +58,26 @@ export class FileController {
     })
   )
   async analyzeSingleFileSlither(@UploadedFile() file: Express.Multer.File) {
-    this.fileService.createContainer(file);
+    return this.fileService.createContainer(file);
+  }
+
+  @Post('uploadMythril')
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5 MB
+      },
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const filename = file.originalname;
+          cb(null, filename);
+        },
+      }),
+    })
+  )
+  async analyzeSingleFileMythril(@UploadedFile() file: Express.Multer.File) {    
+    return this.fileService.analyzeMythrilSingleFile(file);
   }
 }
