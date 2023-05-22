@@ -27,20 +27,40 @@ const InputFile = () => {
         {
           method: "POST",
           body: formData,
-          mode: "no-cors",
         }
       );
-      console.log(res);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+    } else {
+        const text = await res.text();
+        console.log(text);
+        if (text) {
+            const json = JSON.parse(text);
+            console.log(json);
+        } else {
+            console.log("Empty response");
+        }
+    }
     } else {
       const res = await fetchWithCredentials(
         "http://localhost:3000/file/uploadMythril",
         {
           method: "POST",
           body: formData,
-          mode: "no-cors",
         }
       );
-      console.log(res);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+    } else {
+        const text = await res.text();
+        console.log(text);
+        if (text) {
+            const json = JSON.parse(text);
+            console.log(json);
+        } else {
+            console.log("Empty response");
+        }
+    }
     }
   };
 

@@ -58,7 +58,8 @@ export class FileController {
     })
   )
   async analyzeSingleFileSlither(@UploadedFile() file: Express.Multer.File) {
-    return this.fileService.createContainer(file);
+    const result = await this.fileService.createContainer(file);
+    return { data: result };
   }
 
   @Post('uploadMythril')
@@ -78,6 +79,7 @@ export class FileController {
     })
   )
   async analyzeSingleFileMythril(@UploadedFile() file: Express.Multer.File) {    
-    return this.fileService.analyzeMythrilSingleFile(file);
+    const result = await this.fileService.analyzeMythrilSingleFile(file);
+    return { data: result };
   }
 }

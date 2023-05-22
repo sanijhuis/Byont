@@ -241,11 +241,10 @@ export class FileService {
 
     await this.execDeleteFile(file, container);
     const data = await this.execAnalyzeFile(file, container);
-    await parseOutput(data, this.configService)
-    console.log('GigaChatGPT', data)
-    await this.delay(1000)
-    //await this.execPrintJson(file, container);
+    //await parseOutput(data, this.configService)
+    //console.log('GigaChatGPT', data)
 
+    return data;
   }
 
 
@@ -275,30 +274,36 @@ export class FileService {
     }
   }
 
-  async execAnalyzeFile(file: Express.Multer.File, container: Docker.Container): Promise<string> {
+  async execAnalyzeFile(file: Express.Multer.File, container: Docker.Container): Promise<any> {
     const exec2 = await container.exec({
-      Cmd: ['slither', `/mnt/${file.filename}`, '--json', `/mnt/${file.filename}.json`, '--print', 'human-summary'],
+      Cmd: ['slither', `/mnt/${file.filename}`, '--json', `/mnt/${file.filename}.json`/** , '--print', 'human-summary'*/],
       AttachStdout: true,
       AttachStderr: true
     });
     const execStream2 = await exec2.start({ hijack: true, stdin: true });
-  
+
     // Log the output of the second command
     let logStream2 = new Stream.PassThrough();
     let output = '';
     logStream2.on('data', (chunk) => {
       const chunkAsString = chunk.toString('utf8');
-      console.log(chunkAsString);
       output += chunkAsString;
     });
-  
+
     exec2.modem.demuxStream(execStream2, logStream2, logStream2);
-  
+
     return new Promise((resolve, reject) => {
-      execStream2.on('end', () => {
+      execStream2.on('end', async () => {
         logStream2.end();
-        resolve(output);
-        container.remove({force : true})
+        try {
+          // wait for the JSON from execPrintJson
+          const jsonOutput = await this.execPrintJson(file, container);
+          // resolve the promise with the JSON output
+          resolve(jsonOutput);
+        } catch (err) {
+          reject(err);
+        }
+        container.remove({ force: true });
       });
       execStream2.on('error', reject);
     });
@@ -313,56 +318,86 @@ export class FileService {
 
     const execStream3 = await exec3.start({ hijack: true, stdin: true });
 
+    let output = '';
     let logStream3 = new Stream.PassThrough();
-    logStream3.on('data', (chunk) => console.log(chunk.toString('utf8')));
+    logStream3.on('data', (chunk) => output += chunk.toString('utf8'));
     exec3.modem.demuxStream(execStream3, logStream3, logStream3);
-    execStream3.on('end', () => logStream3.end());
-    
+
+    return new Promise((resolve, reject) => {
+      execStream3.on('end', () => {
+        logStream3.end();
+        try {
+          const json = JSON.parse(output); // parse the output as JSON
+          resolve(json); // resolve the promise with the JSON
+        } catch (err) {
+          reject(err); // if an error occurs when parsing the JSON, reject the promise
+        }
+      });
+
+      execStream3.on('error', reject); // if an error occurs with the stream, reject the promise
+    });
   }
 
 
   async analyzeMythrilSingleFile(file: Express.Multer.File) {
-
-    const docker = new Docker();
-    const container = await docker.createContainer({
+    const container = await this.docker.createContainer({
+      Image: 'mythril/myth:latest',
+      name: 'mythril',
+      Tty: true,
       HostConfig: {
         Binds: [`${process.cwd()}/uploads:/mnt`],
       },
-
-      Image: 'mythril/myth:latest',
-      Cmd: ['analyze', `/mnt/${file.filename}`, '-o', 'json'],
     });
+
+    console.log('Container created: ', container);
 
     await container.start();
 
-    const logs = await container.logs({
-      follow: true,
-      stdout: true,
-      stderr: true,
+    console.log('Container started');
+
+    const exec = await container.exec({
+      Cmd: ['myth', 'a', `/mnt/${file.filename}`, '-o', 'json'],
+      Tty: true,
+      AttachStdout: true,
+      AttachStderr: true
     });
 
-    let logsData = '';
-    logs.pipe(process.stdout);
-    logs.on('data', async (data) => {
-      logsData += data;
-    });
-    console.log('logsdata', logsData);
+    const inspectData = await exec.inspect();
+    console.log(inspectData);
 
-    await new Promise<void>((resolve, reject) => {
-      logs.on('end', async () => {
-        const output = this.removeNonPrintableChars(logsData);
-        console.log('output with no characters', output);
-        const GPTResponse = await parseOutput(output, this.configService);
-        console.log('GPTResponse', GPTResponse);
-        // Push the result into the scanResults array
-        await container.remove({ force: true });
-        resolve();
+    const execStream = await exec.start({ hijack: true, stdin: true });
+
+    let stdoutStream = new Stream.PassThrough();
+    let stderrStream = new Stream.PassThrough();
+    let output = '';
+
+    stdoutStream.on('data', (chunk) => {
+      const chunkAsString = chunk.toString('utf8');
+      console.log('Received chunk: ', chunkAsString);
+      output += chunkAsString;
+    });
+
+    stderrStream.on('data', (chunk) => {
+      const chunkAsString = chunk.toString('utf8');
+      console.log('Error: ', chunkAsString);
+    });
+
+    exec.modem.demuxStream(execStream, stdoutStream, stderrStream);
+
+    return new Promise((resolve, reject) => {
+      execStream.on('end', async () => {
+        stdoutStream.end();
+        stderrStream.end();
+        try {
+          console.log('Final output: ', output);
+          resolve(output);
+        } catch (err) {
+          reject(err);
+        }
+        container.remove({ force: true });
       });
-      logs.on('error', (err) => {
-        reject(err);
-      });
+      execStream.on('error', reject);
     });
-
   }
 
 
