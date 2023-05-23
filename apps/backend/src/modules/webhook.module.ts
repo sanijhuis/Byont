@@ -6,11 +6,16 @@ import { GithubService } from 'src/services/github.service';
 import { PrismaService } from 'prisma/prisma.service';
 import { RepoService } from 'src/services/repo.service';
 import { UsersService } from 'src/services/users.service';
+import { FileModule } from './file.module';
+import { GithubModule } from './github.module';
+import { RepoModule } from './repo.module';
+import { SharedModule } from './shared.module';
+import { UserModule } from './user.module';
 
 @Module({
   controllers: [WebhookController],
-  providers: [WebhookService, GithubService, FileService, PrismaService, RepoService, UsersService],
+  providers: [WebhookService],
+  imports: [GithubModule, FileModule, UserModule, SharedModule, RepoModule],
   exports: [WebhookService],
-  imports: []
 })
 export class WebhookModule { }

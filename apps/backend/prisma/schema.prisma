@@ -24,6 +24,8 @@ model Repo {
   name        String
   owner       String
   scanResults ScanResult[]
+
+  @@unique([name, owner], name: "name_owner")
 }
 
 model ScanResult {

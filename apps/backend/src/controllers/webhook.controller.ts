@@ -3,6 +3,7 @@ import {
   Headers,
   HttpException,
   HttpStatus,
+  Logger,
   Post,
   Req,
 } from '@nestjs/common';
@@ -10,6 +11,7 @@ import { WebhookService } from 'src/services/webhook.service';
 
 @Controller('webhook')
 export class WebhookController {
+  private readonly logger = new Logger(WebhookController.name);
   constructor(private webhookService: WebhookService) { }
 
   @Post('github-events')
@@ -18,18 +20,18 @@ export class WebhookController {
     @Req() req: Request
   ) {
     const payload = req.body;
-    console.log('payload', payload);
+    this.logger.log(`Payload: ${JSON.stringify(payload)}`);
     if (!event) {
       throw new HttpException('Event header missing', HttpStatus.BAD_REQUEST);
     }
 
     switch (event) {
       case 'push':
-        this.webhookService.handlePushEvent(payload);
+        await this.webhookService.handlePushEvent(payload);
         break;
 
       case 'ping':
-        this.webhookService.handlePingEvent();
+        await this.webhookService.handlePingEvent(payload);
         break;
 
       default:

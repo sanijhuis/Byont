@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
 import { FileService } from 'src/services/file.service';
 import { FileController } from '../controllers/file.controller';
-import { PrismaClient } from '@prisma/client';
-import { PrismaService } from 'prisma/prisma.service';
-import { RepoService } from 'src/services/repo.service';
-import { UsersService } from 'src/services/users.service';
+import { EmailModule } from './email.module';
+import { RepoModule } from './repo.module';
+import { SharedModule } from './shared.module';
+import { UserModule } from './user.module';
 
 @Module({
   controllers: [FileController],
-  providers: [FileService, PrismaService, RepoService, UsersService],
+  providers: [FileService],
+  imports: [RepoModule, UserModule, EmailModule, SharedModule],
+  exports: [FileService],
 })
-export class FileModule {}
+export class FileModule { }

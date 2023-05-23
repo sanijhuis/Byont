@@ -45,6 +45,9 @@ CREATE UNIQUE INDEX "User_githubAccessToken_key" ON "User"("githubAccessToken");
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "Repo_name_owner_key" ON "Repo"("name", "owner");
+
 -- AddForeignKey
 ALTER TABLE "Repo" ADD CONSTRAINT "Repo_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 

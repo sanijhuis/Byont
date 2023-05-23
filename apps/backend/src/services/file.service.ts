@@ -9,11 +9,12 @@ import { RepoService } from './repo.service';
 import { UsersService } from './users.service';
 import { ConfigService } from '@nestjs/config';
 import { Stream } from 'stream';
+import { EmailService } from './email.service';
 
 type ScanResultItem = {
   scanner: Scanner;
   filename: string;
-  output: any; // You can use a more specific type here if you know the structure of the output
+  output: any;
 };
 
 @Injectable()
@@ -25,6 +26,7 @@ export class FileService {
     private repoService: RepoService,
     private userService: UsersService,
     private configService: ConfigService,
+    private emailService: EmailService,
   ) {
     this.docker = new Docker();
     this.prisma = new PrismaClient();
@@ -58,6 +60,7 @@ export class FileService {
 
           Image: 'mythril/myth:latest',
           Cmd: ['analyze', `/mnt/${filename}`, '-o', 'json'],
+          Tty: true,
         });
 
         await container.start();
@@ -120,6 +123,7 @@ export class FileService {
     } catch (err) {
       console.error('Error creating or starting container:', err);
     }
+    await this.emailService.sendScanPerformedEmail(user, repoName);
   }
   async processFile(file: Express.Multer.File) {
     // Do something with the file, e.g., read its content, process it, etc.
@@ -217,12 +221,12 @@ export class FileService {
 
   async createContainer(file: Express.Multer.File) {
     const container = await this.docker.createContainer({
-        Image: 'trailofbits/eth-security-toolbox',
-        name: 'slither',
-        Tty: true,
-        HostConfig: {
-            Binds: [`${process.cwd()}/uploads:/mnt`]
-        },
+      Image: 'trailofbits/eth-security-toolbox',
+      name: 'slither',
+      Tty: true,
+      HostConfig: {
+        Binds: [`${process.cwd()}/uploads:/mnt`]
+      },
     });
 
     // Start the container
@@ -231,12 +235,12 @@ export class FileService {
     // Check if the container is running before proceeding
     let isRunning = false;
     while (!isRunning) {
-        const data = await container.inspect();
-        if (data.State.Running) {
-            isRunning = true;
-        } else {
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1s before next check
-        }
+      const data = await container.inspect();
+      if (data.State.Running) {
+        isRunning = true;
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1s before next check
+      }
     }
 
     await this.execDeleteFile(file, container);
@@ -244,7 +248,7 @@ export class FileService {
     await this.delay(1000)
     //await this.execPrintJson(file, container);
 
-}
+  }
 
 
   removeNonPrintableChars(s: string): string {
@@ -266,7 +270,7 @@ export class FileService {
         AttachStdout: true,
         AttachStderr: true
       });
-      await exec1.start({hijack: true, stdin: true});
+      await exec1.start({ hijack: true, stdin: true });
       console.log('deleted previous json file output if it exists');
     } catch (err) {
       console.error('Error deleting file:', err);
@@ -279,7 +283,7 @@ export class FileService {
       AttachStdout: true,
       AttachStderr: true
     });
-    const execStream2 = await exec2.start({hijack: true, stdin: true});
+    const execStream2 = await exec2.start({ hijack: true, stdin: true });
 
     // Log the output of the second command
     let logStream2 = new Stream.PassThrough();
@@ -295,7 +299,7 @@ export class FileService {
       AttachStderr: true
     });
 
-    const execStream3 = await exec3.start({hijack: true, stdin: true});
+    const execStream3 = await exec3.start({ hijack: true, stdin: true });
 
     let logStream3 = new Stream.PassThrough();
     logStream3.on('data', (chunk) => console.log(chunk.toString('utf8')));
@@ -303,5 +307,5 @@ export class FileService {
     execStream3.on('end', () => logStream3.end());
   }
 
-  
+
 }
