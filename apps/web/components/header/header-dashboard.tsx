@@ -9,7 +9,7 @@ type HeaderDashboardProps = React.ComponentProps<"div"> & {};
 let tabs = [
   { id: "/dashboard", label: "Dashboard" },
   { id: "/dashboard/new", label: "Add new" },
-  { id: "Information", label: "Information" },
+  { id: "/dashboard/single", label: "Single file" },
 ];
 
 type tabs = {
@@ -20,7 +20,7 @@ type tabs = {
 const HeaderDashboard = ({}: HeaderDashboardProps) => {
   let [activeTab, setActiveTab] = useState(tabs[0].id);
   return (
-    <div className="sticky top-6 h-5 w-screen gap-2 bg-black">
+    <div className="sticky top-6 z-10 h-5 w-screen gap-2 bg-black">
       <nav className="container flex h-full w-full items-center">
         {tabs.map((tab: tabs) => (
           <Link

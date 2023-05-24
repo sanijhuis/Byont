@@ -1,7 +1,18 @@
-import { Controller, Get, Param, Req } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 import { FileService } from 'src/services/file.service';
-
 @Controller('file')
 export class FileController {
   constructor(private fileService: FileService) { }
@@ -146,5 +157,47 @@ async function parseOutput(output: string): Promise<void> {
     return this.fileService.analyzeMythril(repoName, user.email);
     //What is should look like
     //return this.fileService.analyzeMythril(repoName, user.email);
+  }
+
+  @Post('uploadSlither')
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5 MB
+      },
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const filename = file.originalname;
+          cb(null, filename);
+        },
+      }),
+    })
+  )
+  async analyzeSingleFileSlither(@UploadedFile() file: Express.Multer.File) {
+    const result = await this.fileService.createContainer(file);
+    return { data: result };
+  }
+
+  @Post('uploadMythril')
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5 MB
+      },
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const filename = file.originalname;
+          cb(null, filename);
+        },
+      }),
+    })
+  )
+  async analyzeSingleFileMythril(@UploadedFile() file: Express.Multer.File) {    
+    const result = await this.fileService.analyzeMythrilSingleFile(file);
+    return { data: result };
   }
 }
