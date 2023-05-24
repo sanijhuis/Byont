@@ -1,24 +1,29 @@
 "use client";
 
+import { cn } from "@/lib/merge-tailwind";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 type HeaderDashboardProps = React.ComponentProps<"div"> & {};
-
-let tabs = [
-  { id: "/dashboard", label: "Dashboard" },
-  { id: "/dashboard/new", label: "Add new" },
-  { id: "/dashboard/single", label: "Single file" },
-];
 
 type tabs = {
   id: string;
   label: string;
 };
 
+let tabs = [
+  { id: "/dashboard", label: "Dashboard" },
+  { id: "/dashboard/new", label: "Add new" },
+  { id: "/dashboard/single", label: "Single file" },
+] as tabs[];
+
 const HeaderDashboard = ({}: HeaderDashboardProps) => {
-  let [activeTab, setActiveTab] = useState(tabs[0].id);
+  let [activeTab, setActiveTab] = useState<string | undefined>();
+  const pathname = usePathname();
+
+  console.log(pathname);
   return (
     <div className="sticky top-6 z-10 h-5 w-screen gap-2 bg-black">
       <nav className="container flex h-full w-full items-center">
@@ -27,10 +32,13 @@ const HeaderDashboard = ({}: HeaderDashboardProps) => {
             href={tab.id}
             key={tab.id}
             onMouseEnter={() => setActiveTab(tab.id)}
-            onMouseLeave={() => setActiveTab("")}
-            className={`${
-              activeTab === tab.id ? "" : "hover:text-white/60"
-            } relative rounded-md px-2 py-[5px] text-[14px] font-normal text-white outline-sky-400 transition focus-visible:outline-2`}
+            onMouseLeave={() => setActiveTab(undefined)}
+            className={cn(
+              "relative rounded-md px-2 py-[5px] text-[14px] font-normal text-white outline-sky-400 transition focus-visible:outline-2",
+              {
+                "hover:text-white/60": activeTab === tab.id,
+              }
+            )}
             style={{
               WebkitTapHighlightColor: "transparent",
             }}
@@ -44,6 +52,9 @@ const HeaderDashboard = ({}: HeaderDashboardProps) => {
               />
             )}
             {tab.label}
+            {pathname === tab.id && (
+              <div className="absolute bottom-[-9px] left-0 right-0 h-[2px] w-full bg-white/60"></div>
+            )}
           </Link>
         ))}
       </nav>
