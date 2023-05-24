@@ -32,12 +32,13 @@ import { AuthService } from '../services/auth.service';
 import { UserModule } from './user.module';
 import { AuthController } from '../controllers/auth.controller';
 import { JwtStrategy } from '../auth/jwt.strategy';
+import { SharedModule } from './shared.module';
 
 @Module({
   imports: [
     UserModule,
+    SharedModule,
     PassportModule,
-    ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -50,4 +51,4 @@ import { JwtStrategy } from '../auth/jwt.strategy';
   providers: [AuthService, GithubStrategy, JwtStrategy],
   controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule { }

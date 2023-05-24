@@ -20,7 +20,7 @@ export class AuthController {
     private authService: AuthService,
     private configService: ConfigService,
     private userService: UsersService
-  ) {}
+  ) { }
 
   //Initiates the GitHub OAuth2 login process by triggering the authentication guard.
   @Get('login')
@@ -38,8 +38,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ) {
     const user = req.user;
-    console.log(user);
-
+    console.log(`user ${req.user}`);
     if (!user) {
       throw new BadRequestException('User object is missing in the request');
     }
@@ -58,11 +57,6 @@ export class AuthController {
     });
 
     await this.userService.findOrCreate(user);
-    await this.userService.updateGithubAccessToken(
-      user.email,
-      user.githubAccessToken
-    );
-
     await this.userService.updateGithubAccessToken(
       user.email,
       user.githubAccessToken

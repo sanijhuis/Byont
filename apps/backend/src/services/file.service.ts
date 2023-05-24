@@ -9,11 +9,12 @@ import { RepoService } from './repo.service';
 import { UsersService } from './users.service';
 import { ConfigService } from '@nestjs/config';
 import { Stream } from 'stream';
+import { EmailService } from './email.service';
 
 type ScanResultItem = {
   scanner: Scanner;
   filename: string;
-  output: any; // You can use a more specific type here if you know the structure of the output
+  output: any;
 };
 
 @Injectable()
@@ -25,6 +26,7 @@ export class FileService {
     private repoService: RepoService,
     private userService: UsersService,
     private configService: ConfigService,
+    private emailService: EmailService,
   ) {
     this.docker = new Docker();
     this.prisma = new PrismaClient();
@@ -58,6 +60,7 @@ export class FileService {
 
           Image: 'mythril/myth:latest',
           Cmd: ['analyze', `/mnt/${filename}`, '-o', 'json'],
+          Tty: true,
         });
 
         await container.start();
@@ -120,6 +123,7 @@ export class FileService {
     } catch (err) {
       console.error('Error creating or starting container:', err);
     }
+    await this.emailService.sendScanPerformedEmail(user, repoName);
   }
   async processFile(file: Express.Multer.File) {
     // Do something with the file, e.g., read its content, process it, etc.
@@ -244,7 +248,10 @@ export class FileService {
     //await parseOutput(data, this.configService)
     //console.log('GigaChatGPT', data)
 
+<<<<<<< apps/backend/src/services/file.service.ts
+=======
     return data;
+>>>>>>> apps/backend/src/services/file.service.ts
   }
 
 
@@ -339,6 +346,8 @@ export class FileService {
   }
 
 
+<<<<<<< apps/backend/src/services/file.service.ts
+=======
   async analyzeMythrilSingleFile(file: Express.Multer.File) {
     const container = await this.docker.createContainer({
       Image: 'mythril/myth:latest',
@@ -401,4 +410,5 @@ export class FileService {
   }
 
 
+>>>>>>> apps/backend/src/services/file.service.ts
 }
