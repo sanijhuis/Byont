@@ -63,6 +63,10 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
   }
   if (!data) return <p>loading...</p>;
 
+  if (!data.output.length) return;
+
+  console.log(data);
+
   return (
     <section {...props}>
       <Tabs defaultValue={data.output[0].filename}>
