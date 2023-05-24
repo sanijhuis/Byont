@@ -244,10 +244,14 @@ export class FileService {
     }
 
     await this.execDeleteFile(file, container);
-    await this.execAnalyzeFile(file, container);
-    await this.delay(1000)
-    //await this.execPrintJson(file, container);
+    const data = await this.execAnalyzeFile(file, container);
+    //await parseOutput(data, this.configService)
+    //console.log('GigaChatGPT', data)
 
+<<<<<<< apps/backend/src/services/file.service.ts
+=======
+    return data;
+>>>>>>> apps/backend/src/services/file.service.ts
   }
 
 
@@ -277,9 +281,9 @@ export class FileService {
     }
   }
 
-  async execAnalyzeFile(file: Express.Multer.File, container: Docker.Container) {
+  async execAnalyzeFile(file: Express.Multer.File, container: Docker.Container): Promise<any> {
     const exec2 = await container.exec({
-      Cmd: ['slither', `/mnt/${file.filename}`, '--json', `/mnt/${file.filename}.json`, '--print', 'human-summary'],
+      Cmd: ['slither', `/mnt/${file.filename}`, '--json', `/mnt/${file.filename}.json`/** , '--print', 'human-summary'*/],
       AttachStdout: true,
       AttachStderr: true
     });
@@ -287,9 +291,29 @@ export class FileService {
 
     // Log the output of the second command
     let logStream2 = new Stream.PassThrough();
-    logStream2.on('data', (chunk) => console.log(chunk.toString('utf8')));
+    let output = '';
+    logStream2.on('data', (chunk) => {
+      const chunkAsString = chunk.toString('utf8');
+      output += chunkAsString;
+    });
+
     exec2.modem.demuxStream(execStream2, logStream2, logStream2);
-    execStream2.on('end', () => logStream2.end());
+
+    return new Promise((resolve, reject) => {
+      execStream2.on('end', async () => {
+        logStream2.end();
+        try {
+          // wait for the JSON from execPrintJson
+          const jsonOutput = await this.execPrintJson(file, container);
+          // resolve the promise with the JSON output
+          resolve(jsonOutput);
+        } catch (err) {
+          reject(err);
+        }
+        container.remove({ force: true });
+      });
+      execStream2.on('error', reject);
+    });
   }
 
   async execPrintJson(file: Express.Multer.File, container: Docker.Container) {
@@ -301,11 +325,90 @@ export class FileService {
 
     const execStream3 = await exec3.start({ hijack: true, stdin: true });
 
+    let output = '';
     let logStream3 = new Stream.PassThrough();
-    logStream3.on('data', (chunk) => console.log(chunk.toString('utf8')));
+    logStream3.on('data', (chunk) => output += chunk.toString('utf8'));
     exec3.modem.demuxStream(execStream3, logStream3, logStream3);
-    execStream3.on('end', () => logStream3.end());
+
+    return new Promise((resolve, reject) => {
+      execStream3.on('end', () => {
+        logStream3.end();
+        try {
+          const json = JSON.parse(output); // parse the output as JSON
+          resolve(json); // resolve the promise with the JSON
+        } catch (err) {
+          reject(err); // if an error occurs when parsing the JSON, reject the promise
+        }
+      });
+
+      execStream3.on('error', reject); // if an error occurs with the stream, reject the promise
+    });
   }
 
 
+<<<<<<< apps/backend/src/services/file.service.ts
+=======
+  async analyzeMythrilSingleFile(file: Express.Multer.File) {
+    const container = await this.docker.createContainer({
+      Image: 'mythril/myth:latest',
+      name: 'mythril',
+      Tty: true,
+      HostConfig: {
+        Binds: [`${process.cwd()}/uploads:/mnt`],
+      },
+    });
+
+    console.log('Container created: ', container);
+
+    await container.start();
+
+    console.log('Container started');
+
+    const exec = await container.exec({
+      Cmd: ['myth', 'a', `/mnt/${file.filename}`, '-o', 'json'],
+      Tty: true,
+      AttachStdout: true,
+      AttachStderr: true
+    });
+
+    const inspectData = await exec.inspect();
+    console.log(inspectData);
+
+    const execStream = await exec.start({ hijack: true, stdin: true });
+
+    let stdoutStream = new Stream.PassThrough();
+    let stderrStream = new Stream.PassThrough();
+    let output = '';
+
+    stdoutStream.on('data', (chunk) => {
+      const chunkAsString = chunk.toString('utf8');
+      console.log('Received chunk: ', chunkAsString);
+      output += chunkAsString;
+    });
+
+    stderrStream.on('data', (chunk) => {
+      const chunkAsString = chunk.toString('utf8');
+      console.log('Error: ', chunkAsString);
+    });
+
+    exec.modem.demuxStream(execStream, stdoutStream, stderrStream);
+
+    return new Promise((resolve, reject) => {
+      execStream.on('end', async () => {
+        stdoutStream.end();
+        stderrStream.end();
+        try {
+          console.log('Final output: ', output);
+          resolve(output);
+        } catch (err) {
+          reject(err);
+        }
+        container.remove({ force: true });
+      });
+      execStream.on('error', reject);
+    });
+  }
+
+
+>>>>>>> apps/backend/src/services/file.service.ts
 }
