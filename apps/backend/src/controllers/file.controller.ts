@@ -79,7 +79,7 @@ export class FileController {
     })
   )
   async analyzeSingleFileMythril(@UploadedFile() file: Express.Multer.File) {    
-    const result = await this.fileService.analyzeMythrilSingleFile(file);
+    const result = await this.fileService.createContainerMythril(file);
     return { data: result };
   }
 }

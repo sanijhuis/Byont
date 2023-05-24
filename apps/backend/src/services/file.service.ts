@@ -339,67 +339,56 @@ export class FileService {
   }
 
 
-  async analyzeMythrilSingleFile(file: Express.Multer.File) {
-    const container = await this.docker.createContainer({
-      Image: 'mythril/myth:latest',
-      name: 'mythril',
-      Tty: true,
-      HostConfig: {
-        Binds: [`${process.cwd()}/uploads:/mnt`],
-      },
-    });
+  async createContainerMythril(file: Express.Multer.File) {
+    try {
+      console.log(`Analyzing ${file.filename}`);
 
-    console.log('Container created: ', container);
+      const docker = this.docker
+        const container = await docker.createContainer({
+        Image: 'mythril/myth:latest',
 
-    await container.start();
-
-    console.log('Container started');
-
-    const exec = await container.exec({
-      Cmd: ['myth', 'a', `/mnt/${file.filename}`, '-o', 'json'],
-      Tty: true,
-      AttachStdout: true,
-      
-      AttachStderr: true
-    });
-
-    const inspectData = await exec.inspect();
-    console.log(inspectData);
-
-    const execStream = await exec.start({ hijack: true, stdin: true });
-
-    let stdoutStream = new Stream.PassThrough();
-    let stderrStream = new Stream.PassThrough();
-    let output = '';
-
-    stdoutStream.on('data', (chunk) => {
-      const chunkAsString = chunk.toString('utf8');
-      console.log('Received chunk: ', chunkAsString);
-      output += chunkAsString;
-    });
-
-    stderrStream.on('data', (chunk) => {
-      const chunkAsString = chunk.toString('utf8');
-      console.log('Error: ', chunkAsString);
-    });
-
-    exec.modem.demuxStream(execStream, stdoutStream, stderrStream);
-
-    return new Promise((resolve, reject) => {
-      execStream.on('end', async () => {
-        stdoutStream.end();
-        stderrStream.end();
-        try {
-          console.log('Final output: ', output);
-          resolve(output);
-        } catch (err) {
-          reject(err);
-        }
-        container.remove({ force: true });
+        HostConfig: {
+          Binds: [`${process.cwd()}/uploads:/mnt`],
+        },
+        Cmd: ['analyze', `/mnt/${file.filename}`, '-o', 'json'],
       });
-      execStream.on('error', reject);
-    });
+
+      await container.start();
+
+      const data  = await this.analyzeSingleFileMythril(file, container);
+      return data
+    } catch (err) {
+      console.error('Error creating or starting container:', err);
+    }
   }
 
 
+  async analyzeSingleFileMythril(file: Express.Multer.File, container: Docker.Container): Promise<any> {
+    const logs = await container.logs({
+      follow: true,
+      stdout: true,
+      stderr: true,
+    });
+
+    let logsData = '';
+    logs.pipe(process.stdout);
+    logs.on('data', async (data) => {
+      logsData += data;
+    });
+    console.log('logsdata', logsData);
+
+    return new Promise((resolve, reject) => {
+      logs.on('end', async () => {
+        try {
+          const output = this.removeNonPrintableChars(logsData);
+          console.log('output with no characters', output);
+          //const GPTResponse = await parseOutput(output, this.configService);
+          //console.log('GPTResponse', GPTResponse);
+          resolve(output);
+        } catch(err) {
+          reject(err)
+        }
+      });
+    });
+  }
 }

@@ -35,8 +35,7 @@ const InputFile = () => {
         const text = await res.text();
         console.log(text);
         if (text) {
-            const json = JSON.parse(text);
-            console.log(json);
+          console.log(text);
         } else {
             console.log("Empty response");
         }
