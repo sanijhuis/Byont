@@ -368,6 +368,7 @@ export class FileService {
       Cmd: ['myth', 'a', `/mnt/${file.filename}`, '-o', 'json'],
       Tty: true,
       AttachStdout: true,
+
       AttachStderr: true,
     });
 
