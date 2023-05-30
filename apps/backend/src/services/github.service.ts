@@ -7,12 +7,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaService } from 'prisma/prisma.service';
 import { User } from 'src/types/user.type';
-import { ConfigService } from '@nestjs/config';
 var appRoot = require('app-root-path');
 
 @Injectable()
 export class GithubService {
-  constructor(private prisma: PrismaService, private configService: ConfigService) {
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService
+  ) {
     this.prisma = new PrismaClient();
     this.configService = new ConfigService();
   }
@@ -55,8 +57,11 @@ export class GithubService {
               });
             }
 
-            const webhookUrl = this.configService.get("NGROK_URL") + '/webhook/github-events';
-            const hasWebhook = webhooks.data.some((webhook: any) => webhook.config.url === webhookUrl);
+            const webhookUrl =
+              this.configService.get('NGROK_URL') + '/webhook/github-events';
+            const hasWebhook = webhooks.data.some(
+              (webhook: any) => webhook.config.url === webhookUrl
+            );
 
             return {
               ...existingRepo,
@@ -85,7 +90,6 @@ export class GithubService {
     }
   }
 
-
   async removeRepo(repo: Repo, accessToken: string): Promise<void> {
     const octokit = new Octokit({
       auth: accessToken,
@@ -101,20 +105,25 @@ export class GithubService {
     }
   }
 
-
   async removeWebhook(repo: Repo, accessToken: string): Promise<void> {
     const octokit = new Octokit({
       auth: accessToken,
     });
 
     try {
-      const webhooks = await octokit.request('GET /repos/{owner}/{repo}/hooks', {
-        owner: repo.owner,
-        repo: repo.name,
-      });
-      
-      const webhookUrl = this.configService.get("NGROK_URL") + '/webhook/github-events';
-      const webhook = webhooks.data.find((webhook: any) => webhook.config.url === webhookUrl);
+      const webhooks = await octokit.request(
+        'GET /repos/{owner}/{repo}/hooks',
+        {
+          owner: repo.owner,
+          repo: repo.name,
+        }
+      );
+
+      const webhookUrl =
+        this.configService.get('NGROK_URL') + '/webhook/github-events';
+      const webhook = webhooks.data.find(
+        (webhook: any) => webhook.config.url === webhookUrl
+      );
 
       if (webhook) {
         await octokit.request('DELETE /repos/{owner}/{repo}/hooks/{hook_id}', {
@@ -161,8 +170,6 @@ export class GithubService {
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir);
     }
-
-
 
     // Download and save .sol files
     for (const file of solFiles) {
@@ -227,7 +234,7 @@ export class GithubService {
           active: true,
           events: ['push', 'pull_request'],
           config: {
-            url: this.configService.get("NGROK_URL") + `/webhook/github-events`,
+            url: this.configService.get('NGROK_URL') + `/webhook/github-events`,
             content_type: 'json',
             insecure_ssl: '0',
           },
@@ -268,7 +275,9 @@ export class GithubService {
       );
 
       const webhook = response.data.find(
-        (hook: any) => hook.config.url === this.configService.get("NGROK_URL") + `/webhook/github-events`
+        (hook: any) =>
+          hook.config.url ===
+          this.configService.get('NGROK_URL') + `/webhook/github-events`
       );
 
       if (webhook) {
