@@ -5,6 +5,8 @@ import InViewFadeIn from "@/components/animations/inview-fade-in";
 import ButtonAnimation from "@/components/button/button-animation";
 import H1 from "@/components/text/H1";
 import Paragraph from "@/components/text/paragraph";
+import chatGpt from "@/public/images/ChatGPT-Logo-.png";
+import imageSlither from "@/public/images/slither-logo.png";
 import imageMytrh from "@/public/scanners/mythril.png";
 import Image from "next/image";
 
@@ -40,7 +42,7 @@ const Page = () => {
               Get Started
             </ButtonAnimation>
           </InViewFadeIn>
-          <div className="item-center mt-10 flex w-full flex-col items-center pt-5">
+          <div className="item-center mt-6 flex w-full flex-col items-center pt-5">
             <InViewFadeIn delay={1.5} time={1}>
               <Paragraph
                 size="sm"
@@ -50,13 +52,29 @@ const Page = () => {
               >
                 The scanner that we use
               </Paragraph>
-              <Image
-                className="opacity-70 mx-auto brightness-0 invert"
-                src={imageMytrh}
-                width={150}
-                height={150}
-                alt={""}
-              />
+              <div className="flex items-center gap-1">
+                <Image
+                  className="opacity-70 mx-auto h-fit w-[150px] brightness-0 invert"
+                  src={imageMytrh}
+                  width={150}
+                  height={150}
+                  alt={""}
+                />
+                <Image
+                  className="opacity-70 mx-auto h-fit w-[150px] brightness-0 invert"
+                  src={imageSlither}
+                  width={150}
+                  height={150}
+                  alt={""}
+                />
+                <Image
+                  className="opacity-70 mx-auto h-fit w-[150px] brightness-0 invert"
+                  src={chatGpt}
+                  width={150}
+                  height={150}
+                  alt={""}
+                />
+              </div>
             </InViewFadeIn>
           </div>
         </div>

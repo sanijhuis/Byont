@@ -1,3 +1,4 @@
+import LoadingIcon from "@/components/animations/loading-icon";
 import {
   Accordion,
   AccordionContent,
@@ -61,7 +62,7 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
 
     return json;
   }
-  if (!data) return <p>loading...</p>;
+  if (!data) return <LoadingIcon />;
 
   if (!data.output.length) return;
 

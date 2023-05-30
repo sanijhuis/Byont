@@ -8,7 +8,6 @@ interface PageProps {
 }
 
 const Page = ({ params }: PageProps) => {
-  console.log(params.slug);
   {
     /* @ts-ignore */
   }

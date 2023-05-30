@@ -5,6 +5,7 @@ import fetchWithCredentials from "../../../utils/fetchWithCredentials";
 import ButtonActivate from "../../button/button-activate";
 import Paragraph from "../../text/paragraph";
 import CardOutline from "../../ui/card/card-outline";
+import LoadingIcon from "@/components/animations/loading-icon";
 import { useToast } from "@/components/ui/toaster/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useRouter } from "next/navigation";
@@ -70,6 +71,13 @@ const ListRepo = (): JSX.Element => {
 
     return data.message === "Webhook created successfully";
   };
+
+  if (!repos.length)
+    return (
+      <div className="col-span-3 my-10">
+        <LoadingIcon />
+      </div>
+    );
 
   return (
     <section className="flex flex-col gap-1">

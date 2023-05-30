@@ -24,7 +24,7 @@ export class FileService {
     private prisma: PrismaService,
     private repoService: RepoService,
     private userService: UsersService,
-    private configService: ConfigService,
+    private configService: ConfigService
   ) {
     this.docker = new Docker();
     this.prisma = new PrismaClient();
@@ -221,7 +221,7 @@ export class FileService {
       name: 'slither',
       Tty: true,
       HostConfig: {
-        Binds: [`${process.cwd()}/uploads:/mnt`]
+        Binds: [`${process.cwd()}/uploads:/mnt`],
       },
     });
 
@@ -235,7 +235,7 @@ export class FileService {
       if (data.State.Running) {
         isRunning = true;
       } else {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1s before next check
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1s before next check
       }
     }
 
@@ -246,7 +246,6 @@ export class FileService {
 
     return data;
   }
-
 
   removeNonPrintableChars(s: string): string {
     return s
@@ -259,13 +258,12 @@ export class FileService {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-
   async execDeleteFile(file: Express.Multer.File, container: Docker.Container) {
     try {
       const exec1 = await container.exec({
         Cmd: ['rm', '-f', `/mnt/${file.filename}.json`],
         AttachStdout: true,
-        AttachStderr: true
+        AttachStderr: true,
       });
       await exec1.start({ hijack: true, stdin: true });
       console.log('deleted previous json file output if it exists');
@@ -274,11 +272,19 @@ export class FileService {
     }
   }
 
-  async execAnalyzeFile(file: Express.Multer.File, container: Docker.Container): Promise<any> {
+  async execAnalyzeFile(
+    file: Express.Multer.File,
+    container: Docker.Container
+  ): Promise<any> {
     const exec2 = await container.exec({
-      Cmd: ['slither', `/mnt/${file.filename}`, '--json', `/mnt/${file.filename}.json`/** , '--print', 'human-summary'*/],
+      Cmd: [
+        'slither',
+        `/mnt/${file.filename}`,
+        '--json',
+        `/mnt/${file.filename}.json` /** , '--print', 'human-summary'*/,
+      ],
       AttachStdout: true,
-      AttachStderr: true
+      AttachStderr: true,
     });
     const execStream2 = await exec2.start({ hijack: true, stdin: true });
 
@@ -313,14 +319,14 @@ export class FileService {
     const exec3 = await container.exec({
       Cmd: ['cat', `/mnt/${file.filename}.json`],
       AttachStdout: true,
-      AttachStderr: true
+      AttachStderr: true,
     });
 
     const execStream3 = await exec3.start({ hijack: true, stdin: true });
 
     let output = '';
     let logStream3 = new Stream.PassThrough();
-    logStream3.on('data', (chunk) => output += chunk.toString('utf8'));
+    logStream3.on('data', (chunk) => (output += chunk.toString('utf8')));
     exec3.modem.demuxStream(execStream3, logStream3, logStream3);
 
     return new Promise((resolve, reject) => {
@@ -338,13 +344,12 @@ export class FileService {
     });
   }
 
-
   async createContainerMythril(file: Express.Multer.File) {
     try {
       console.log(`Analyzing ${file.filename}`);
 
-      const docker = this.docker
-        const container = await docker.createContainer({
+      const docker = this.docker;
+      const container = await docker.createContainer({
         Image: 'mythril/myth:latest',
 
         HostConfig: {
@@ -355,15 +360,17 @@ export class FileService {
 
       await container.start();
 
-      const data  = await this.analyzeSingleFileMythril(file, container);
-      return data
+      const data = await this.analyzeSingleFileMythril(file, container);
+      return data;
     } catch (err) {
       console.error('Error creating or starting container:', err);
     }
   }
 
-
-  async analyzeSingleFileMythril(file: Express.Multer.File, container: Docker.Container): Promise<any> {
+  async analyzeSingleFileMythril(
+    file: Express.Multer.File,
+    container: Docker.Container
+  ): Promise<any> {
     const logs = await container.logs({
       follow: true,
       stdout: true,
@@ -385,9 +392,10 @@ export class FileService {
           //const GPTResponse = await parseOutput(output, this.configService);
           //console.log('GPTResponse', GPTResponse);
           resolve(output);
-        } catch(err) {
-          reject(err)
+        } catch (err) {
+          reject(err);
         }
       });
     });
   }
+}

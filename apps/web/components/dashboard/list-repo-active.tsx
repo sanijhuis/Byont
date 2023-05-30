@@ -1,5 +1,6 @@
 "use client";
 
+import LoadingIcon from "../animations/loading-icon";
 import CardRepo from "./card-repo";
 import getData from "@/services/getAllRepo";
 import { useState, useEffect } from "react";
@@ -30,7 +31,12 @@ const ListRepoActive = ({ grid }: Props): JSX.Element => {
     console.log(repos);
   }, [repos]);
 
-  if (!repos) return <div>..loading</div>;
+  if (!repos.length)
+    return (
+      <div className="col-span-3 h-[80vh]">
+        <LoadingIcon />
+      </div>
+    );
 
   return (
     <>

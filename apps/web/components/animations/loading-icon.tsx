@@ -1,20 +1,7 @@
-import Animation from "./Dynamic Dashboard-Icon-Lottie-Render.json";
-import Lottie from "lottie-react";
+import { Loader2 } from "lucide-react";
 
 const LoadingIcon = () => {
-  return (
-    <div className="flex">
-      <Lottie
-        style={{
-          height: "100%",
-          width: "150px",
-          margin: "auto",
-        }}
-        animationData={Animation}
-        loop={true}
-      />
-    </div>
-  );
+  return <Loader2 color="#C5EE53" className="mx-auto h-4 w-4 animate-spin" />;
 };
 
 export default LoadingIcon;
