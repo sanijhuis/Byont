@@ -6,12 +6,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaService } from 'prisma/prisma.service';
 import { User } from 'src/types/user.type';
+import { ConfigService } from '@nestjs/config';
 var appRoot = require('app-root-path');
 
 @Injectable()
 export class GithubService {
-  constructor(private prisma: PrismaService) {
+  constructor(private prisma: PrismaService, private configService: ConfigService) {
     this.prisma = new PrismaClient();
+    this.configService = new ConfigService();
   }
 
   async getRepos(accessToken: string, userId: number): Promise<any[]> {
@@ -172,7 +174,7 @@ export class GithubService {
           active: true,
           events: ['push', 'pull_request'],
           config: {
-            url: 'https://2c30-86-88-151-70.eu.ngrok.io/webhook/github-events',
+            url: this.configService.get("NGROK_URL") + `/webhook/github-events`,
             content_type: 'json',
             insecure_ssl: '0',
           },
