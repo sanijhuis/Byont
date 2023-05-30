@@ -63,6 +63,10 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
   }
   if (!data) return <p>loading...</p>;
 
+  if (!data.output.length) return;
+
+  console.log(data);
+
   return (
     <section {...props}>
       <Tabs defaultValue={data.output[0].filename}>
@@ -75,7 +79,7 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
         </TabsList>
         {data.output.map((item, index: number) => (
           <TabsContent key={index} value={item.filename}>
-            <div className="flex flex-col gap-2 rounded-md border-[1px] border-green bg-softBlack p-2">
+            <div className="flex flex-col gap-2 rounded-md border-[1px] border-green bg-black p-2">
               {item.output && Object.keys(item.output).length > 0 ? (
                 <Accordion type="single" collapsible>
                   {formatJson(item.output).success ? (

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Octokit } from '@octokit/rest';
 import { PrismaClient, Repo } from '@prisma/client';
 import axios from 'axios';
@@ -17,16 +18,13 @@ export class GithubService {
   }
 
   async getRepos(accessToken: string, userId: number): Promise<any[]> {
-    // Initialize the Octokit client with the access token
     const octokit = new Octokit({
       auth: accessToken,
     });
 
     try {
-      // Fetch repositories
       const response = await octokit.request('GET /user/repos');
 
-      // Extract the names of the repositories and check for webhooks
       const reposWithWebhooks = await Promise.all(
         response.data.map(async (repo: any) => {
           try {
@@ -38,18 +36,31 @@ export class GithubService {
               }
             );
 
-            // Create a new Repo record in the database
-            const createdRepo = await this.prisma.repo.create({
-              data: {
-                user: { connect: { id: userId } },
-                name: repo.name,
-                owner: repo.owner.login,
+            let existingRepo = await this.prisma.repo.findUnique({
+              where: {
+                name_owner: {
+                  name: repo.name,
+                  owner: repo.owner.login,
+                },
               },
             });
 
+            if (!existingRepo) {
+              existingRepo = await this.prisma.repo.create({
+                data: {
+                  user: { connect: { id: userId } },
+                  name: repo.name,
+                  owner: repo.owner.login,
+                },
+              });
+            }
+
+            const webhookUrl = this.configService.get("NGROK_URL") + '/webhook/github-events';
+            const hasWebhook = webhooks.data.some((webhook: any) => webhook.config.url === webhookUrl);
+
             return {
-              ...createdRepo,
-              hasWebhook: webhooks.data.length > 0,
+              ...existingRepo,
+              hasWebhook,
             };
           } catch (error) {
             console.error(
@@ -71,6 +82,49 @@ export class GithubService {
       return [];
     } finally {
       await this.prisma.$disconnect();
+    }
+  }
+
+
+  async removeRepo(repo: Repo, accessToken: string): Promise<void> {
+    const octokit = new Octokit({
+      auth: accessToken,
+    });
+
+    try {
+      await octokit.request('DELETE /repos/{owner}/{repo}', {
+        owner: repo.owner,
+        repo: repo.name,
+      });
+    } catch (error) {
+      console.error(`Error removing repo ${repo.name}:`, error.message);
+    }
+  }
+
+
+  async removeWebhook(repo: Repo, accessToken: string): Promise<void> {
+    const octokit = new Octokit({
+      auth: accessToken,
+    });
+
+    try {
+      const webhooks = await octokit.request('GET /repos/{owner}/{repo}/hooks', {
+        owner: repo.owner,
+        repo: repo.name,
+      });
+      
+      const webhookUrl = this.configService.get("NGROK_URL") + '/webhook/github-events';
+      const webhook = webhooks.data.find((webhook: any) => webhook.config.url === webhookUrl);
+
+      if (webhook) {
+        await octokit.request('DELETE /repos/{owner}/{repo}/hooks/{hook_id}', {
+          owner: repo.owner,
+          repo: repo.name,
+          hook_id: webhook.id,
+        });
+      }
+    } catch (error) {
+      console.error(`Error removing webhook for ${repo.name}:`, error.message);
     }
   }
 
@@ -108,7 +162,7 @@ export class GithubService {
       fs.mkdirSync(outputDir);
     }
 
-    console.log('Output directory:', outputDir);
+
 
     // Download and save .sol files
     for (const file of solFiles) {
@@ -118,7 +172,6 @@ export class GithubService {
       });
       const fileOutputPath = path.join(outputDir, name);
       fs.writeFileSync(fileOutputPath, data);
-      console.log(`Downloaded ${name}`);
     }
   }
 
@@ -192,6 +245,41 @@ export class GithubService {
       }
     } catch (error) {
       console.error('Error creating webhook:', error);
+      throw error;
+    }
+  }
+
+  async deleteWebhook(
+    accessToken: string,
+    user: User,
+    repoName: string
+  ): Promise<void> {
+    const octokit = new Octokit({
+      auth: accessToken,
+    });
+
+    try {
+      const response = await octokit.request(
+        'GET /repos/{owner}/{repo}/hooks',
+        {
+          owner: user.username,
+          repo: repoName,
+        }
+      );
+
+      const webhook = response.data.find(
+        (hook: any) => hook.config.url === this.configService.get("NGROK_URL") + `/webhook/github-events`
+      );
+
+      if (webhook) {
+        await octokit.request('DELETE /repos/{owner}/{repo}/hooks/{hook_id}', {
+          owner: user.username,
+          repo: repoName,
+          hook_id: webhook.id,
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting webhook:', error);
       throw error;
     }
   }

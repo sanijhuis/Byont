@@ -18,6 +18,7 @@ import { FileService } from './services/file.service';
 import { PrismaService } from 'prisma/prisma.service';
 import { RepoModule } from './modules/repo.module';
 import { ScanResultModule } from './modules/scanResult.module';
+import { EmailModule } from './modules/email.module';
 
 @Module({
   imports: [
@@ -29,12 +30,13 @@ import { ScanResultModule } from './modules/scanResult.module';
     GithubModule,
     RepoModule,
     ScanResultModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtService, FileService, PrismaService],
 })
 export class AppModule implements NestModule {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) { }
 
   async onModuleInit() {
     const jwtMiddlewareInstance = jwtMiddleware(this.jwtService);

@@ -85,7 +85,7 @@ const MainScanResults = ({ slug, ...props }: MainScanResultsProps) => {
   if (!data) return <p>loading...</p>;
 
   return (
-    <section className="py-5" {...props}>
+    <section className="min-h-screen bg-[#111] py-5" {...props}>
       <div className="container grid grid-cols-3 gap-3">
         <div className="col-span-1 flex max-w-[250px] flex-col gap-1">
           {data.map((item: ScanResultsData[number], index: number) => (

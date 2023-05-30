@@ -7,29 +7,37 @@ import { UsersService } from './users.service';
 @Injectable()
 export class WebhookService {
   private readonly logger = new Logger(WebhookService.name);
-  constructor(private readonly githubService: GithubService,
-    private readonly fileService: FileService, private readonly usersService: UsersService) { }
 
-  async handlePushEvent(payload: any) {
-    this.logger.log('Push event received:');
+  constructor(
+    private readonly githubService: GithubService,
+    private readonly fileService: FileService,
+    private readonly usersService: UsersService
+  ) { }
 
+  async handleEvent(payload: any, eventType: string) {
+    this.logger.log(`${eventType} event received:`);
     // Extract necessary information from the payload
     const user = {
       username: payload.sender.login,
-      email: payload.repository.owner.email,
+      //email: payload.repository.owner.email,
     };
-    console.log(user);
+    console.log('payload', payload);
     const repoName = payload.repository.name;
-    const accessToken = await this.usersService.getAccessToken(user.email);
+    const userEmail = await this.usersService.findEmailByUsername(user.username);
+    const accessToken = await this.usersService.getAccessToken(user.username);
 
     // Call getSolFiles from GithubService
     const solFiles = await this.githubService.downloadSolFiles(user.username, repoName, accessToken);
 
     // Call analyzeSlither from FileService
-    await this.fileService.analyzeMythril(repoName, user.email);
+    await this.fileService.analyzeMythril(repoName, userEmail);
   }
 
-  handlePingEvent() {
-    this.logger.log('Ping event received');
+  async handlePushEvent(payload: any) {
+    this.handleEvent(payload, 'Push');
+  }
+
+  async handlePingEvent(payload: any) {
+    this.handleEvent(payload, 'Ping');
   }
 }

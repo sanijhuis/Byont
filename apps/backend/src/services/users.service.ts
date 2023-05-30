@@ -10,6 +10,15 @@ export class UsersService {
     this.prisma = new PrismaClient();
   }
 
+  async findEmailByUsername(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username,
+      },
+    });
+    return user ? user.email : null;
+  }
+
   async findOrCreate(user: User) {
     console.log(user);
     const { githubAccessToken, email, username } = user;
@@ -46,19 +55,25 @@ export class UsersService {
     return users;
   }
 
-  async getAccessToken(email: string) {
+  async getAccessToken(username: string) {
+    console.log(`Access token for ${username}`)
     const user = await this.prisma.user.findUnique({
       where: {
-        email,
+        username,
       },
     });
+    console.log(user);
+    if (!user) {
+      console.log('user not found')
+      return null;
+    }
     return user ? user.githubAccessToken : null;
   }
 
   async updateGithubAccessToken(email: string, githubAccessToken: string) {
     const user = await this.prisma.user.update({
       where: {
-        email,
+        email: email,
       },
       data: {
         githubAccessToken,
@@ -70,7 +85,7 @@ export class UsersService {
   async findIdByEmail(email: string) {
     const user = await this.prisma.user.findUnique({
       where: {
-        email,
+        email: email,
       },
     });
     return user ? user.id : null;

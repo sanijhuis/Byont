@@ -2,13 +2,13 @@
 import { Module } from '@nestjs/common';
 import { GithubController } from '../controllers/github.controller';
 import { GithubService } from '../services/github.service';
-import { JwtService } from '@nestjs/jwt';
-import { UsersService } from 'src/services/users.service';
-import { PrismaService } from 'prisma/prisma.service';
+import { SharedModule } from './shared.module';
+import { UserModule } from './user.module';
 
 @Module({
-  imports: [],
+  imports: [UserModule, SharedModule],
   controllers: [GithubController],
-  providers: [GithubService, UsersService, PrismaService],
+  providers: [GithubService],
+  exports: [GithubService],
 })
-export class GithubModule {}
+export class GithubModule { }

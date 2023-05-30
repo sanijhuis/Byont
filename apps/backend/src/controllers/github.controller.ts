@@ -30,7 +30,7 @@ export class GithubController {
   @Get('sol-files/:repoName')
   async getSolFiles(@Req() req: Request, @Param('repoName') repoName: string) {
     const user = req['customUser'];
-    const accessToken = await this.userService.getAccessToken(user.email);
+    const accessToken = await this.userService.getAccessToken(user.username);
 
     if (!accessToken) {
       throw new UnauthorizedException('GitHub access token is missing');
@@ -48,8 +48,8 @@ export class GithubController {
   async getRepos(@Req() req: Request): Promise<string[]> {
     const user = req['customUser'];
     const userId = await this.userService.findIdByEmail(user.email);
-    const accessToken = await this.userService.getAccessToken(user.email);
-    console.log(user);
+    const accessToken = await this.userService.getAccessToken(user.username);
+
     if (!accessToken) {
       throw new UnauthorizedException('GitHub access token is missing');
     }
@@ -66,7 +66,7 @@ export class GithubController {
   ) {
     const repoName = body.repoName;
     const user: User = req['customUser'];
-    const accessToken = await this.userService.getAccessToken(user.email);
+    const accessToken = await this.userService.getAccessToken(user.username);
 
     if (!user || !accessToken) {
       throw new UnauthorizedException(
