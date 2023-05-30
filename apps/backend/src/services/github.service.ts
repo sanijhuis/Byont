@@ -7,12 +7,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaService } from 'prisma/prisma.service';
 import { User } from 'src/types/user.type';
+import { ConfigService } from '@nestjs/config';
 var appRoot = require('app-root-path');
 
 @Injectable()
 export class GithubService {
   constructor(private prisma: PrismaService, private configService: ConfigService) {
     this.prisma = new PrismaClient();
+    this.configService = new ConfigService();
   }
 
   async getRepos(accessToken: string, userId: number): Promise<any[]> {
