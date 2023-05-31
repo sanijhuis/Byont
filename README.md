@@ -1,3 +1,18 @@
+## Project Blockhain
+
+Team GROUP-SIX : Eyüb Cihan, Mees van Berkel, Sam Kort, Sven Nijhuis, Jaïr Lijkwan
+
+## Web3 Security Dashboard BYONT
+
+# Local Deployment
+
+To locally test, deploy or play challenges with Docker
+
+# Install dependencies
+
+npm install 
+
+
 # Turborepo starter
 
 This is an official npm starter turborepo.
