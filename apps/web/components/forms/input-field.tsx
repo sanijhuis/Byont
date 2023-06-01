@@ -1,7 +1,16 @@
+"use client";
+
+import Paragraph from "../text/paragraph";
 import fetchWithCredentials from "@/utils/fetchWithCredentials";
+import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 const InputFile = () => {
+  const [scanner, setScanner] = useState("");
+  const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    console.log(event.target.value);
+    setScanner(event.target.value);
+  };
   const {
     register,
     handleSubmit,
@@ -12,14 +21,47 @@ const InputFile = () => {
     const file = data.file[0];
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetchWithCredentials(
-      "http://localhost:3000/file/upload",
-      {
-        method: "POST",
-        body: formData,
-        mode: "no-cors",
-      }
-    );
+    if (scanner === "Slither") {
+      const res = await fetchWithCredentials(
+        "http://localhost:3000/file/uploadSlither",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+    } else {
+        const text = await res.text();
+        console.log(text);
+        if (text) {
+            const json = JSON.parse(text);
+            console.log(json);
+        } else {
+            console.log("Empty response");
+        }
+    }
+    } else {
+      const res = await fetchWithCredentials(
+        "http://localhost:3000/file/uploadMythril",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+    } else {
+        const text = await res.text();
+        console.log(text);
+        if (text) {
+            const json = JSON.parse(text);
+            console.log(json);
+        } else {
+            console.log("Empty response");
+        }
+    }
+    }
   };
 
   return (
@@ -27,6 +69,13 @@ const InputFile = () => {
       className="flex flex-col items-center"
       onSubmit={handleSubmit(onSubmit)}
     >
+      <Paragraph size="md" color="white" fontWeight="normal">
+        Select scanner
+      </Paragraph>
+      <select className="my-3 rounded-md px-3 py-1" onChange={handleChange}>
+        <option value="Mythril">Mythril</option>
+        <option value="Slither">Slither</option>
+      </select>
       <label className="block" htmlFor="">
         <input
           className="text-sm file:text-sm block w-full
