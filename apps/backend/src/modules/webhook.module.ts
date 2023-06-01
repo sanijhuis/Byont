@@ -11,10 +11,11 @@ import { GithubModule } from './github.module';
 import { RepoModule } from './repo.module';
 import { SharedModule } from './shared.module';
 import { UserModule } from './user.module';
+import { NftService } from 'src/services/nft.service';
 
 @Module({
   controllers: [WebhookController],
-  providers: [WebhookService],
+  providers: [WebhookService, NftService],
   imports: [GithubModule, FileModule, UserModule, SharedModule, RepoModule],
   exports: [WebhookService],
 })

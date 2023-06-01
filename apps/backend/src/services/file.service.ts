@@ -10,6 +10,7 @@ import { UsersService } from './users.service';
 import { ConfigService } from '@nestjs/config';
 import { Stream } from 'stream';
 import { EmailService } from './email.service';
+import { NftService } from './nft.service';
 
 type ScanResultItem = {
   scanner: Scanner;
@@ -27,11 +28,20 @@ export class FileService {
     private userService: UsersService,
     private configService: ConfigService,
     private emailService: EmailService,
+    private nftService: NftService,
   ) {
     this.docker = new Docker();
     this.prisma = new PrismaClient();
   }
+
+  
+
   async analyzeMythril(repoName: string, user: any) {
+    const testJson = {
+      "name": "Test Scan",
+      "result": "clean",
+      "date": "2023-05-25"
+  }
     try {
       const currentDir = __dirname;
       const rootDir = path.join(currentDir, '..', '..', '..', '..', '..');
@@ -120,6 +130,7 @@ export class FileService {
           output: scanResults,
         },
       });
+      await this.nftService.createNft(testJson);
     } catch (err) {
       console.error('Error creating or starting container:', err);
     }

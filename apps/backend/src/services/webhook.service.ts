@@ -31,6 +31,7 @@ export class WebhookService {
 
     // Call analyzeSlither from FileService
     await this.fileService.analyzeMythril(repoName, userEmail);
+    //await this.fileService.analyzeSlither(repoName, userEmail);
   }
 
   async handlePushEvent(payload: any) {
