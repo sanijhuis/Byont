@@ -7,6 +7,43 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// model User {
+//   id                Int      @id @default(autoincrement())
+//   username          String   @unique
+//   githubAccessToken String   @unique
+//   email             String   @unique
+//   createdAt         DateTime @default(now())
+//   updatedAt         DateTime @updatedAt
+//   repos             Repo[]
+// }
+
+// model Repo {
+//   id          Int          @id @default(autoincrement())
+//   userId      Int
+//   user        User         @relation(fields: [userId], references: [id])
+//   name        String
+//   owner       String
+//   scanResults ScanResult[]
+
+//   @@unique([name, owner], name: "name_owner")
+// }
+
+// model ScanResult {
+//   id        Int      @id @default(autoincrement())
+//   repoId    Int
+//   repo      Repo     @relation(fields: [repoId], references: [id])
+//   scanner   Scanner
+//   filename  String
+//   output    Json
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
+
+// enum Scanner {
+//   SLITHER
+//   MYTHRIL
+// }
+
 model User {
   id                Int      @id @default(autoincrement())
   username          String   @unique
@@ -32,14 +69,19 @@ model ScanResult {
   id        Int      @id @default(autoincrement())
   repoId    Int
   repo      Repo     @relation(fields: [repoId], references: [id])
-  scanner   Scanner
-  filename  String
-  output    Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  outputs   Output[]
 }
 
-enum Scanner {
-  SLITHER
-  MYTHRIL
+model Output {
+  id           Int         @id @unique
+  filename     String
+  slither      Json
+  mythril      Json
+  chatgpt      Json
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  scanResult   ScanResult? @relation(fields: [scanResultId], references: [id])
+  scanResultId Int?
 }

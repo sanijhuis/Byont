@@ -15,7 +15,7 @@ import { diskStorage } from 'multer';
 import { FileService } from 'src/services/file.service';
 @Controller('file')
 export class FileController {
-  constructor(private fileService: FileService) { }
+  constructor(private fileService: FileService) {}
 
   @Get('analyze-slither/:repoName')
   async analyzeSlither(
@@ -36,7 +36,7 @@ export class FileController {
     const user = req['customUser'];
     //Temporary for testing, this will be replaced with the properties of the user object
     const tempEmail = 'sanijhuis@live.nl';
-    return this.fileService.analyzeMythril(repoName, user.email);
+    // return this.fileService.analyzeMythril(repoName, user.email);
     //What is should look like
     //return this.fileService.analyzeMythril(repoName, user.email);
   }
@@ -78,7 +78,7 @@ export class FileController {
       }),
     })
   )
-  async analyzeSingleFileMythril(@UploadedFile() file: Express.Multer.File) {    
+  async analyzeSingleFileMythril(@UploadedFile() file: Express.Multer.File) {
     const result = await this.fileService.createContainerMythril(file);
     return { data: result };
   }

@@ -12,18 +12,21 @@ import { WebhookService } from 'src/services/webhook.service';
 @Controller('webhook')
 export class WebhookController {
   private readonly logger = new Logger(WebhookController.name);
-  constructor(private webhookService: WebhookService) { }
+  constructor(private webhookService: WebhookService) {}
 
   @Post('github-events')
   async handleGithubEvent(
     @Headers('x-github-event') event: string,
     @Req() req: Request
   ) {
+    console.log(req.body);
     const payload = req.body;
     this.logger.log(`Payload: ${JSON.stringify(payload)}`);
     if (!event) {
       throw new HttpException('Event header missing', HttpStatus.BAD_REQUEST);
     }
+
+    console.log(event);
 
     switch (event) {
       case 'push':
