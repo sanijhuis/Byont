@@ -152,12 +152,19 @@ export class FileService {
       console.log(contractsDir);
 
       const scanOutputItemsData: { filename: string; output: string }[] = [];
-
+      let slitherOutput = []
       // loop through the .sol files
       for (const filename of solFiles) {
         console.log(`Analyzing ${filename}`);
         const data = await this.createContainer(filename, contractsDir)
+        const jsonData = data.results
+        scanOutputItemsData.push({
+          filename: filename,
+          output: jsonData,
+        });
       }
+
+      console.log(scanOutputItemsData);
 
       // Create a single scanOutput entry with the scanOutputItemsData array
       const userId = await this.userService.findIdByEmail(user);
@@ -178,7 +185,7 @@ export class FileService {
           data: {
             scanOutput: { connect: { id: scanOutput.id } },
             filename: item.filename,
-            slither: JSON.parse(item.output),
+            slither: item.output,
           },
         });
       }
