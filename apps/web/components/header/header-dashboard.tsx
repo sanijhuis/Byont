@@ -1,5 +1,6 @@
 "use client";
 
+import MetaMask from "../nft/meta-mask-button";
 import { cn } from "@/lib/merge-tailwind";
 import fetchWithCredentials from "@/utils/fetchWithCredentials";
 import { motion } from "framer-motion";
@@ -61,6 +62,7 @@ const HeaderDashboard = ({}: HeaderDashboardProps) => {
           ))}
         </div>
         <div className="col-span-1 flex  text-white">
+          <MetaMask />
           <button
             onClick={async () => {
               fetchWithCredentials("http://localhost:3000/auth/logout", {
