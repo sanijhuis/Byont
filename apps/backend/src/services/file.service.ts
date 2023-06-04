@@ -152,7 +152,6 @@ export class FileService {
       console.log(contractsDir);
 
       const scanOutputItemsData: { filename: string; output: string }[] = [];
-      let slitherOutput = []
       // loop through the .sol files
       for (const filename of solFiles) {
         console.log(`Analyzing ${filename}`);
@@ -164,7 +163,6 @@ export class FileService {
         });
       }
 
-      console.log(scanOutputItemsData);
 
       // Create a single scanOutput entry with the scanOutputItemsData array
       const userId = await this.userService.findIdByEmail(user);
