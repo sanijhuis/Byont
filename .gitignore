@@ -36,3 +36,4 @@ yarn-error.log*
 # uploads
 uploads
 .vscode
+apps/backend/prisma/migrations

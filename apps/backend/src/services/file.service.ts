@@ -135,7 +135,6 @@ export class FileService {
 
   async analyzeSlither(repoName: string, user: any) {
     try {
-      let requestCounter = 0;
       const currentDir = __dirname;
       const rootDir = path.join(currentDir, '..', '..', '..', '..', '..');
       const contractsDir = path.join(
@@ -157,66 +156,7 @@ export class FileService {
       // loop through the .sol files
       for (const filename of solFiles) {
         console.log(`Analyzing ${filename}`);
-
-        // create and start the Docker container
-        const docker = new Docker();
-        const container = await docker.createContainer({
-          HostConfig: {
-            Binds: [`${contractsDir}:/mnt`],
-          },
-          Image: 'trailofbits/slither:latest',
-          Cmd: [
-            'slither',
-            `/mnt/${filename}`,
-            '--json',
-            `/mnt/output-${filename}.json`,
-          ],
-        });
-
-        await container.start();
-
-        // collect logs and print them to the console
-        const logs = await container.logs({
-          follow: true,
-          stdout: true,
-          stderr: true,
-        });
-
-        let logsData = '';
-        logs.pipe(process.stdout);
-        logs.on('data', (data) => {
-          logsData += data;
-        });
-
-        await new Promise<void>((resolve, reject) => {
-          logs.on('end', async () => {
-            const output = this.removeNonPrintableChars(logsData);
-            console.log('output with no characters', output);
-
-            // Push the result into the scanOutputItemsData array
-            scanOutputItemsData.push({
-              filename: filename,
-              output: output,
-            });
-
-            const userId = await this.userService.findIdByEmail(user);
-            const repoId = await this.repoService.findRepoByNameAndUserId(
-              repoName,
-              userId!
-            );
-
-            await this.delay(1000);
-            const GPTResponse = await parseOutput(output, this.configService);
-            console.log('GPTResponse', GPTResponse);
-
-            await container.remove({ force: true });
-            resolve();
-          });
-          logs.on('error', (err) => {
-            reject(err);
-          });
-        });
-        console.log(requestCounter);
+        const data = await this.createContainer(filename, contractsDir)
       }
 
       // Create a single scanOutput entry with the scanOutputItemsData array
@@ -247,32 +187,21 @@ export class FileService {
     }
   }
 
-  async createContainer(file: Express.Multer.File) {
+  async createContainer(filename: string, contractsDir: string) {
     const container = await this.docker.createContainer({
       Image: 'trailofbits/eth-security-toolbox',
-      name: 'slither',
       Tty: true,
       HostConfig: {
-        Binds: [`${process.cwd()}/uploads:/mnt`],
+        Binds: [`${contractsDir}:/mnt`],
       },
     });
 
     // Start the container
     await container.start();
 
-    // Check if the container is running before proceeding
-    let isRunning = false;
-    while (!isRunning) {
-      const data = await container.inspect();
-      if (data.State.Running) {
-        isRunning = true;
-      } else {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1s before next check
-      }
-    }
-
-    await this.execDeleteFile(file, container);
-    const data = await this.execAnalyzeFile(file, container);
+    await this.execDeleteFile(filename, container);
+    const data = await this.execAnalyzeFile(filename, container);
+    console.log(data);
     //await parseOutput(data, this.configService)
     //console.log('GigaChatGPT', data)
 
@@ -290,10 +219,10 @@ export class FileService {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async execDeleteFile(file: Express.Multer.File, container: Docker.Container) {
+  async execDeleteFile(filename: string, container: Docker.Container) {
     try {
       const exec1 = await container.exec({
-        Cmd: ['rm', '-f', `/mnt/${file.filename}.json`],
+        Cmd: ['rm', '-f', `/mnt/${filename}.json`],
         AttachStdout: true,
         AttachStderr: true,
       });
@@ -305,15 +234,15 @@ export class FileService {
   }
 
   async execAnalyzeFile(
-    file: Express.Multer.File,
+    filename: string,
     container: Docker.Container
   ): Promise<any> {
     const exec2 = await container.exec({
       Cmd: [
         'slither',
-        `/mnt/${file.filename}`,
+        `/mnt/${filename}`,
         '--json',
-        `/mnt/${file.filename}.json` /** , '--print', 'human-summary'*/,
+        `/mnt/${filename}.json` /** , '--print', 'human-summary'*/,
       ],
       AttachStdout: true,
       AttachStderr: true,
@@ -335,21 +264,20 @@ export class FileService {
         logStream2.end();
         try {
           // wait for the JSON from execPrintJson
-          const jsonOutput = await this.execPrintJson(file, container);
+          const jsonOutput = await this.execPrintJson(filename, container);
           // resolve the promise with the JSON output
           resolve(jsonOutput);
         } catch (err) {
           reject(err);
         }
-        container.remove({ force: true });
       });
       execStream2.on('error', reject);
     });
   }
 
-  async execPrintJson(file: Express.Multer.File, container: Docker.Container) {
+  async execPrintJson(filename, container: Docker.Container) {
     const exec3 = await container.exec({
-      Cmd: ['cat', `/mnt/${file.filename}.json`],
+      Cmd: ['cat', `/mnt/${filename}.json`],
       AttachStdout: true,
       AttachStderr: true,
     });
