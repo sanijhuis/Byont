@@ -6,7 +6,6 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
-
 model User {
   id                Int      @id @default(autoincrement())
   username          String   @unique
@@ -23,20 +22,29 @@ model Repo {
   user        User         @relation(fields: [userId], references: [id])
   name        String
   owner       String
-  scanResults ScanResult[]
+  scanOutputs ScanOutput[]
 
   @@unique([name, owner], name: "name_owner")
 }
 
-model ScanResult {
-  id        Int      @id @default(autoincrement())
-  repoId    Int
-  repo      Repo     @relation(fields: [repoId], references: [id])
-  scanner   Scanner
-  filename  String
-  output    Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model ScanOutput {
+  id                Int              @id @default(autoincrement())
+  repoId            Int
+  repo              Repo             @relation(fields: [repoId], references: [id])
+  date              DateTime
+  scanOutputItems   ScanOutputItem[] 
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model ScanOutputItem {
+  id           Int        @id @default(autoincrement())
+  scanOutputId Int
+  scanOutput   ScanOutput @relation(fields: [scanOutputId], references: [id])
+  filename     String
+  slither      Json?
+  mythril      Json?
+  chatgpt      Json?
 }
 
 enum Scanner {

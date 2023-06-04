@@ -3,17 +3,19 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as Docker from 'dockerode';
 import { parseOutput } from 'src/utils/output-parser';
-import { PrismaClient, Scanner } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { RepoService } from './repo.service';
 import { UsersService } from './users.service';
 import { ConfigService } from '@nestjs/config';
 import { Stream } from 'stream';
 
+type Scanner = 'mythril' | 'slither';
+
 type ScanResultItem = {
   scanner: Scanner;
   filename: string;
-  output: any; // You can use a more specific type here if you know the structure of the output
+  output: any;
 };
 
 @Injectable()
@@ -29,6 +31,7 @@ export class FileService {
     this.docker = new Docker();
     this.prisma = new PrismaClient();
   }
+
   async analyzeMythril(repoName: string, user: any) {
     try {
       const currentDir = __dirname;
@@ -45,8 +48,10 @@ export class FileService {
       const solFiles = fs
         .readdirSync(contractsDir)
         .filter((file) => path.extname(file) === '.sol');
-      console.log(contractsDir);
-      const scanResults: ScanResultItem[] = [];
+     
+
+      const scanOutputItemsData: {filename: string, output: string}[] = [];
+      
       for (const filename of solFiles) {
         console.log(`Analyzing ${filename}`);
 
@@ -58,6 +63,7 @@ export class FileService {
 
           Image: 'mythril/myth:latest',
           Cmd: ['analyze', `/mnt/${filename}`, '-o', 'json'],
+          Tty: true,
         });
 
         await container.start();
@@ -73,23 +79,17 @@ export class FileService {
         logs.on('data', async (data) => {
           logsData += data;
         });
-        console.log('logsdata', logsData);
+      
 
         await new Promise<void>((resolve, reject) => {
           logs.on('end', async () => {
             const output = this.removeNonPrintableChars(logsData);
             console.log('output with no characters', output);
-            const userId = await this.userService.findIdByEmail(user);
-            const repoId = await this.repoService.findRepoByNameAndUserId(
-              repoName,
-              userId!
-            );
             const GPTResponse = await parseOutput(output, this.configService);
             console.log('GPTResponse', GPTResponse);
 
-            // Push the result into the scanResults array
-            scanResults.push({
-              scanner: Scanner.MYTHRIL,
+            // Push the result into the scanOutputItemsData array
+            scanOutputItemsData.push({
               filename: filename,
               output: output,
             });
@@ -103,29 +103,38 @@ export class FileService {
         });
       }
 
-      // Create a single scanResult entry with the scanResults array
+      // Create a single scanOutput entry with the scanOutputItemsData array
       const userId = await this.userService.findIdByEmail(user);
       const repoId = await this.repoService.findRepoByNameAndUserId(
         repoName,
         userId!
       );
-      await this.prisma.scanResult.create({
+      const scanOutput = await this.prisma.scanOutput.create({
         data: {
           repo: { connect: { id: repoId } },
-          scanner: Scanner.MYTHRIL,
-          filename: 'Multiple Files',
-          output: scanResults,
+          date: new Date(),
         },
       });
+
+      for (const item of scanOutputItemsData) {
+        await this.prisma.scanOutputItem.create({
+          data: {
+            scanOutput: { connect: { id: scanOutput.id } },
+            filename: item.filename,
+            mythril: JSON.parse(item.output),
+          },
+        });
+      }
+
     } catch (err) {
       console.error('Error creating or starting container:', err);
     }
-  }
+}
   async processFile(file: Express.Multer.File) {
     // Do something with the file, e.g., read its content, process it, etc.
     const content = fs.readFileSync(file.path, 'utf8');
     fs.rm(file.path, () => {
-      console.log(content);
+      
     });
   }
 
@@ -142,10 +151,14 @@ export class FileService {
         'contracts',
         `${repoName}`
       );
+
       const solFiles = fs
         .readdirSync(contractsDir)
         .filter((file) => path.extname(file) === '.sol');
       console.log(contractsDir);
+
+      const scanOutputItemsData: {filename: string, output: string}[] = [];
+
       // loop through the .sol files
       for (const filename of solFiles) {
         console.log(`Analyzing ${filename}`);
@@ -184,24 +197,24 @@ export class FileService {
           logs.on('end', async () => {
             const output = this.removeNonPrintableChars(logsData);
             console.log('output with no characters', output);
+
+            // Push the result into the scanOutputItemsData array
+            scanOutputItemsData.push({
+              filename: filename,
+              output: output,
+            });
+
             const userId = await this.userService.findIdByEmail(user);
             const repoId = await this.repoService.findRepoByNameAndUserId(
               repoName,
               userId!
             );
+
             await this.delay(1000);
             const GPTResponse = await parseOutput(output, this.configService);
             console.log('GPTResponse', GPTResponse);
-            await this.prisma.scanResult.create({
-              data: {
-                repo: { connect: { id: repoId } },
-                scanner: Scanner.SLITHER,
-                filename: filename,
-                output: output,
-              },
-            });
 
-            //await container.remove({ force: true });
+            await container.remove({ force: true });
             resolve();
           });
           logs.on('error', (err) => {
@@ -210,10 +223,35 @@ export class FileService {
         });
         console.log(requestCounter);
       }
+
+      // Create a single scanOutput entry with the scanOutputItemsData array
+      const userId = await this.userService.findIdByEmail(user);
+      const repoId = await this.repoService.findRepoByNameAndUserId(
+        repoName,
+        userId!
+      );
+
+      const scanOutput = await this.prisma.scanOutput.create({
+        data: {
+          repo: { connect: { id: repoId } },
+          date: new Date(),
+        },
+      });
+
+      for (const item of scanOutputItemsData) {
+        await this.prisma.scanOutputItem.create({
+          data: {
+            scanOutput: { connect: { id: scanOutput.id } },
+            filename: item.filename,
+            slither: JSON.parse(item.output),
+          },
+        });
+      }
+      
     } catch (err) {
       console.error('Error creating or starting container:', err);
     }
-  }
+}
 
   async createContainer(file: Express.Multer.File) {
     const container = await this.docker.createContainer({

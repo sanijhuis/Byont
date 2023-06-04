@@ -38,7 +38,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ) {
     const user = req.user;
-    console.log(`user ${req.user}`);
+  
     if (!user) {
       throw new BadRequestException('User object is missing in the request');
     }

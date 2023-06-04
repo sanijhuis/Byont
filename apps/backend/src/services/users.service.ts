@@ -20,7 +20,7 @@ export class UsersService {
   }
 
   async findOrCreate(user: User) {
-    console.log(user);
+   
     const { githubAccessToken, email, username } = user;
     const existingUser = await this.prisma.user.findUnique({
       where: {
@@ -62,7 +62,7 @@ export class UsersService {
         username,
       },
     });
-    console.log(user);
+
     if (!user) {
       console.log('user not found')
       return null;
