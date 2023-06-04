@@ -171,21 +171,27 @@ export class FileService {
         userId!
       );
 
-      const scanOutput = await this.prisma.scanOutput.create({
-        data: {
-          repo: { connect: { id: repoId } },
-          date: new Date(),
-        },
-      });
-
       for (const item of scanOutputItemsData) {
-        await this.prisma.scanOutputItem.create({
-          data: {
-            scanOutput: { connect: { id: scanOutput.id } },
-            filename: item.filename,
-            slither: item.output,
+
+        const scanOutputItems = await this.prisma.scanOutputItem.findMany({
+          orderBy: {
+            id: 'desc'
           },
-        });
+          take: 1
+        })
+        
+        if (scanOutputItems.length > 0) {
+          const scanOutputId = scanOutputItems[0].id;
+        
+          await this.prisma.scanOutputItem.update({
+            data: {
+              slither: item.output,
+            },
+            where: {
+                id: scanOutputId
+            }
+          });
+        }
       }
     } catch (err) {
       console.error('Error creating or starting container:', err);
@@ -197,7 +203,7 @@ export class FileService {
       Image: 'trailofbits/eth-security-toolbox',
       Tty: true,
       HostConfig: {
-        Binds: [`${contractsDir}:/mnt`],
+        Binds: [`${process.cwd()}/uploads:/mnt`],
       },
     });
 
@@ -280,7 +286,7 @@ export class FileService {
     });
   }
 
-  async execPrintJson(filename, container: Docker.Container) {
+  async execPrintJson(filename: string, container: Docker.Container) {
     const exec3 = await container.exec({
       Cmd: ['cat', `/mnt/${filename}.json`],
       AttachStdout: true,
