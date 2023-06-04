@@ -42,68 +42,69 @@ const MainScanResults = ({ slug, ...props }: MainScanResultsProps) => {
     getScanResults(slug).then(res => {
       console.log("newres:", res);
 
-      if (res.length !== 0) {
-        const parsedData = scanResultsSchema.parse(res);
-        setData(sortByDate(parsedData));
+      // if (res.length !== 0) {
+      //   const parsedData = scanResultsSchema.parse(res);
+      //   setData(sortByDate(parsedData));
 
-        if (sortByDate(parsedData)[0]?.id !== undefined) {
-          setSelected(sortByDate(parsedData)[0].id);
-        }
-      } else {
-        setChecked(true);
-      }
+      //   if (sortByDate(parsedData)[0]?.id !== undefined) {
+      //     setSelected(sortByDate(parsedData)[0].id);
+      //   }
+      // } else {
+      //   setChecked(true);
+      // }
     });
   }, []);
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+  // useEffect(() => {
+  //   console.log(data);
+  // }, [data]);
 
-  const sortByDate = (data: ScanResultsData) =>
-    data
-      .sort(({ createdAt: a }, { createdAt: b }) =>
-        a < b ? -1 : a > b ? 1 : 0
-      )
-      .reverse();
+  // const sortByDate = (data: ScanResultsData) =>
+  //   data
+  //     .sort(({ createdAt: a }, { createdAt: b }) =>
+  //       a < b ? -1 : a > b ? 1 : 0
+  //     )
+  //     .reverse();
 
-  const formatDate = (input: string) => {
-    const date = new Date(input);
-    const formattedDate = date.toLocaleString("en-US", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: false,
-    });
+  // const formatDate = (input: string) => {
+  //   const date = new Date(input);
+  //   const formattedDate = date.toLocaleString("en-US", {
+  //     day: "numeric",
+  //     month: "long",
+  //     year: "numeric",
+  //     hour: "numeric",
+  //     minute: "numeric",
+  //     hour12: false,
+  //   });
 
-    return formattedDate;
-  };
+  //   return formattedDate;
+  // };
 
-  if (checked) return <p>no data</p>;
+  // if (checked) return <p>no data</p>;
 
-  if (!data) return <p>loading...</p>;
+  // if (!data) return <p>loading...</p>;
 
   return (
-    <section className="min-h-screen bg-[#111] py-5" {...props}>
-      <div className="container grid grid-cols-3 gap-3">
-        <div className="col-span-1 flex max-w-[250px] flex-col gap-1">
-          {data.map((item: ScanResultsData[number], index: number) => (
-            <Button
-              className="w-full"
-              key={index}
-              onClick={() => setSelected(item.id)}
-            >
-              {formatDate(item.createdAt)}
-            </Button>
-          ))}
-        </div>
-        <div className="col-span-2">
-          {/* @ts-ignore */}
-          <SingleScanResult param={slug} id={selected} />
-        </div>
-      </div>
-    </section>
+    <div></div>
+    // <section className="min-h-screen bg-[#111] py-5" {...props}>
+    //   <div className="container grid grid-cols-3 gap-3">
+    //     <div className="col-span-1 flex max-w-[250px] flex-col gap-1">
+    //       {data.map((item: ScanResultsData[number], index: number) => (
+    //         <Button
+    //           className="w-full"
+    //           key={index}
+    //           onClick={() => setSelected(item.id)}
+    //         >
+    //           {formatDate(item.createdAt)}
+    //         </Button>
+    //       ))}
+    //     </div>
+    //     <div className="col-span-2">
+    //       {/* @ts-ignore */}
+    //       <SingleScanResult param={slug} id={selected} />
+    //     </div>
+    //   </div>
+    // </section>
   );
 };
 

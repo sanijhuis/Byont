@@ -18,12 +18,17 @@ async function saveFile(jsonData: string) {
   return result;
 }
 
-async function mintNFT(uri: string, name: string, ipfsData: string) {
+async function mintNFT(
+  uri: string,
+  name: string,
+  ipfsData: string,
+  svgData: string
+) {
   const accounts = await window.ethereum.enable();
 
   contract.methods
-    .safeMint(accounts[0], uri, name, ipfsData)
-    .send({ from: accounts[0] })
+    .safeMint(uri, name, ipfsData, svgData)
+    .send({ from: accounts[0], gas: 5000000 })
     .on("receipt", function (receipt: any) {
       console.log(receipt);
     })
@@ -38,9 +43,17 @@ const MintNFTComponent = () => {
 
   const onMintClick = async () => {
     const ipfsResult = await saveFile(json);
+    console.log(ipfsResult.path);
     const uri = `http://127.0.0.1:9090/ipfs/${ipfsResult.path}`;
 
-    await mintNFT(uri, name, uri);
+    const svg = `<svg height="500" width="500" style="background:green;">
+  <text x="250" y="220" text-anchor="middle" fill="black" style="font-size:40px; font-weight: 800;">Several lines:</text>
+  <text x="250" y="250" text-anchor="middle" fill="black" style="font-size:20px; font-weight: 500;">First line.</text>
+  <text x="50" y="480" text-anchor="middle" fill="black" style="font-size:15px; font-weight: 400;">Second line.</text>
+</svg>
+`;
+
+    await mintNFT(uri, name, uri, svg);
   };
 
   return (

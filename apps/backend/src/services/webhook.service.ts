@@ -12,7 +12,7 @@ export class WebhookService {
     private readonly githubService: GithubService,
     private readonly fileService: FileService,
     private readonly usersService: UsersService
-  ) { }
+  ) {}
 
   async handleEvent(payload: any, eventType: string) {
     this.logger.log(`${eventType} event received:`);
@@ -23,15 +23,21 @@ export class WebhookService {
     };
     console.log('payload', payload);
     const repoName = payload.repository.name;
-    const userEmail = await this.usersService.findEmailByUsername(user.username);
+    const userEmail = await this.usersService.findEmailByUsername(
+      user.username
+    );
     const accessToken = await this.usersService.getAccessToken(user.username);
 
     // Call getSolFiles from GithubService
-    const solFiles = await this.githubService.downloadSolFiles(user.username, repoName, accessToken);
+    const solFiles = await this.githubService.downloadSolFiles(
+      user.username,
+      repoName,
+      accessToken
+    );
 
     // Call analyzeSlither from FileService
     await this.fileService.analyzeMythril(repoName, userEmail);
-    await this.fileService.analyzeSlither(repoName, userEmail);
+    // await this.fileService.analyzeSlither(repoName, userEmail);
   }
 
   async handlePushEvent(payload: any) {

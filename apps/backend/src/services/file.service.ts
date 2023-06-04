@@ -48,10 +48,9 @@ export class FileService {
       const solFiles = fs
         .readdirSync(contractsDir)
         .filter((file) => path.extname(file) === '.sol');
-     
 
-      const scanOutputItemsData: {filename: string, output: string}[] = [];
-      
+      const scanOutputItemsData: { filename: string; output: string }[] = [];
+
       for (const filename of solFiles) {
         console.log(`Analyzing ${filename}`);
 
@@ -79,7 +78,6 @@ export class FileService {
         logs.on('data', async (data) => {
           logsData += data;
         });
-      
 
         await new Promise<void>((resolve, reject) => {
           logs.on('end', async () => {
@@ -125,17 +123,14 @@ export class FileService {
           },
         });
       }
-
     } catch (err) {
       console.error('Error creating or starting container:', err);
     }
-}
+  }
   async processFile(file: Express.Multer.File) {
     // Do something with the file, e.g., read its content, process it, etc.
     const content = fs.readFileSync(file.path, 'utf8');
-    fs.rm(file.path, () => {
-      
-    });
+    fs.rm(file.path, () => {});
   }
 
   async analyzeSlither(repoName: string, user: any) {
@@ -157,7 +152,7 @@ export class FileService {
         .filter((file) => path.extname(file) === '.sol');
       console.log(contractsDir);
 
-      const scanOutputItemsData: {filename: string, output: string}[] = [];
+      const scanOutputItemsData: { filename: string; output: string }[] = [];
 
       // loop through the .sol files
       for (const filename of solFiles) {
@@ -247,11 +242,10 @@ export class FileService {
           },
         });
       }
-      
     } catch (err) {
       console.error('Error creating or starting container:', err);
     }
-}
+  }
 
   async createContainer(file: Express.Multer.File) {
     const container = await this.docker.createContainer({
