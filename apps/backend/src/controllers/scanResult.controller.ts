@@ -7,14 +7,14 @@ export class ScanResultController {
 
   @Get(':repoName')
   async getScanResultsByRepoName(@Param('repoName') repoName: string) {
-    return this.scanResultService.getScanResultsByRepoName(repoName);
+    return this.scanResultService.getScanOutputsByRepoName(repoName);
   }
 
-  @Get(':repoName/:id')
-  async getScanResultByRepoNameAndId(
-    @Param('repoName') repoName: string,
-    @Param('id') id: number
-  ) {
-    return this.scanResultService.getScanResultByRepoNameAndId(repoName, id);
-  }
+  // @Get(':repoName/:id')
+  // async getScanResultByRepoNameAndId(
+  //   @Param('repoName') repoName: string,
+  //   @Param('id') id: number
+  // ) {
+  //   return this.scanResultService.getScanOutputByRepoNameAndId(repoName, id);
+  // }
 }
