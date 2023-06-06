@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract CardDashboard is ERC721, ERC721URIStorage, Ownable {
+contract NFTFileScanner is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
 
     struct NFTData {

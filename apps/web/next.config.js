@@ -4,6 +4,9 @@ module.exports = {
   experimental: {
     appDir: true,
   },
+  compiler: {
+    removeConsoleLog: true,
+  },
   async rewrites() {
     return [
       {

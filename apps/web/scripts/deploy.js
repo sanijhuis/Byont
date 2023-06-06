@@ -6,10 +6,10 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 async function main() {
-  const CardDashboard = await hre.ethers.getContractFactory("CardDashboard");
-  const cardDashboard = await CardDashboard.deploy();
-  await cardDashboard.deployed();
-  console.log(`deployed to ${cardDashboard.address}`);
+  const NFTFileScanner = await hre.ethers.getContractFactory("NFTFileScanner");
+  const nftileScanner = await NFTFileScanner.deploy();
+  await nftileScanner.deployed();
+  console.log(`deployed to ${nftileScanner.address}`);
 }
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
