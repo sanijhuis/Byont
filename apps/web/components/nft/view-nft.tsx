@@ -1,6 +1,8 @@
 "use client";
 
+import styling from "./nft.module.scss";
 import contract from "@/lib/get-contract";
+import { cn } from "@/lib/merge-tailwind";
 import React, { useEffect, useState } from "react";
 
 const ViewNFTComponent = () => {
@@ -32,11 +34,21 @@ const ViewNFTComponent = () => {
     }
     fetchNFTs();
   }, [account]);
-  console.log(nfts);
+
   return (
-    <div className="text-white">
+    <div className="container my-6 grid grid-cols-3 gap-6 text-white">
       {nfts.map((nft, index) => (
-        <p key={index}>{nft}</p>
+        <div className="col-span-1 flex flex-col" key={index}>
+          <div
+            className={cn("w-fit", styling.svg_inner)}
+            dangerouslySetInnerHTML={{ __html: nft[3] }}
+          />
+          <p className="mx-auto mt-1 font-medium underline underline-offset-4 ">
+            <a className="mt-2 text-20" href={nft[2]}>
+              {nft[1]}
+            </a>
+          </p>
+        </div>
       ))}
     </div>
   );

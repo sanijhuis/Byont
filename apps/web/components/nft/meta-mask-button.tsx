@@ -35,7 +35,10 @@ export default function MetaMask() {
 
   return (
     <>
-      <button onClick={connectWallet}>
+      <button
+        className=" mr-1 rounded-md bg-white px-1 py-[4px] text-black"
+        onClick={connectWallet}
+      >
         {web3 ? `Web3 is connected!` : "Connect to web3"}
       </button>
       {error && <p>{error}</p>}

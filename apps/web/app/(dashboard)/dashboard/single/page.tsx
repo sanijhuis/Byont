@@ -40,16 +40,8 @@ function fileOnly() {
           </InViewFadeIn>
         </div>
       </div>
-      <div className="container flex flex-col items-center">
-        <InViewFadeIn delay={1.2} time={1}>
-          <div className="rounded-xl border-[1px] border-white/20 bg-black px-3 py-4 md:min-w-[402px]">
-            <h3 className="mb-2 text-center text-20 font-medium uppercase text-white">
-              scan a smart contract
-            </h3>
-            <InputFile />
-          </div>
-        </InViewFadeIn>
-      </div>
+
+      <InputFile />
     </section>
   );
 }

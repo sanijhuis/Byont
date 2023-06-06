@@ -46,7 +46,7 @@ const MintNFTComponent = () => {
     console.log(ipfsResult.path);
     const uri = `http://127.0.0.1:9090/ipfs/${ipfsResult.path}`;
 
-    const svg = `<svg height="500" width="500" style="background:green;">
+    const svg = `<svg height="500" width="500" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet" style="background:green;">
   <text x="250" y="220" text-anchor="middle" fill="black" style="font-size:40px; font-weight: 800;">Several lines:</text>
   <text x="250" y="250" text-anchor="middle" fill="black" style="font-size:20px; font-weight: 500;">First line.</text>
   <text x="50" y="480" text-anchor="middle" fill="black" style="font-size:15px; font-weight: 400;">Second line.</text>

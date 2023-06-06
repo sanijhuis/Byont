@@ -1,3 +1,6 @@
+import ChatgptScanResult from "./chatgpt-scan-result";
+import MythrilScanResult from "./mythril-scan-result";
+import SlitherScanResult from "./slither-scan-result";
 import LoadingIcon from "@/components/animations/loading-icon";
 import {
   Accordion,
@@ -5,14 +8,30 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion/accordion";
+import { Button } from "@/components/ui/button/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover/popover";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs/tabs";
+import { cn } from "@/lib/merge-tailwind";
 import getSingleScanResults from "@/services/getSingleScanResults";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
+import * as React from "react";
 import { z } from "zod";
 
 type SingleScanResultsProps = React.ComponentProps<"section"> & {
@@ -40,127 +59,112 @@ const scanResultSchema = z.object({
 // Use the schema to create a type alias for the data
 type ScanResultsData = z.infer<typeof scanResultSchema>;
 
+const sortScanner = [
+  {
+    value: "slither",
+    label: "Slither",
+  },
+  {
+    value: "mythril",
+    label: "Mythril",
+  },
+  {
+    value: "ChatGPT",
+    label: "ChatGPT",
+  },
+] as const;
+
 const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
-  const [data, setData] = useState<ScanResultsData>();
+  const [data, setData] = useState<any>();
+  const [open, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [value, setValue] = useState<string | undefined>("mythril");
 
   useEffect(() => {
+    console.log(param, id);
     getSingleScanResults(param, id).then(res => {
       console.log(res);
-      const parsedData = scanResultSchema.parse(res);
-      setData(parsedData);
+      setData(res);
     });
   }, [id]);
 
-  function formatJson(errorString: any) {
-    let sanitizedJsonString = errorString;
-    if (sanitizedJsonString?.startsWith("~")) {
-      sanitizedJsonString = sanitizedJsonString.substring(1);
-    }
-    const json = JSON.parse(sanitizedJsonString);
-
-    console.log(json);
-
-    return json;
-  }
   if (!data) return <LoadingIcon />;
 
-  if (!data.output.length) return;
+  if (!data.scanOutputItems.length) return;
 
   console.log(data);
 
   return (
     <section {...props}>
-      <Tabs defaultValue={data.output[0].filename}>
-        <TabsList>
-          {data.output.map((item, index: number) => (
-            <TabsTrigger key={index} value={item.filename}>
-              {item.filename}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {data.output.map((item, index: number) => (
+      <Tabs defaultValue={data.scanOutputItems[0].filename}>
+        <div className="flex">
+          <TabsList className="col-span-1">
+            {data.scanOutputItems.map((item: any, index: number) => (
+              <TabsTrigger key={index} value={item.filename}>
+                {item.filename}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                className="col-span-1 ml-auto w-[250px] justify-between bg-white"
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                defaultValue={value}
+              >
+                {value
+                  ? sortScanner.find(item => item.value === value)?.label
+                  : "Select scanner..."}
+                <ChevronsUpDown className="opacity-50 ml-2 h-2 w-2 shrink-0" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[250px] p-0">
+              <Command>
+                <CommandInput placeholder="Search scanner..." />
+                <CommandEmpty>No scanner found.</CommandEmpty>
+                <CommandGroup>
+                  {sortScanner.map(item => (
+                    <CommandItem
+                      key={item.value}
+                      onSelect={currentValue => {
+                        setValue(currentValue === value ? "" : currentValue);
+                        setOpen(false);
+                      }}
+                    >
+                      {item.label}
+                      <Check
+                        className={cn(
+                          "ml-auto mr-2 h-2 w-2",
+                          value === item.value ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div></div>
+        {data.scanOutputItems.map((item: any, index: number) => (
           <TabsContent key={index} value={item.filename}>
             <div className="flex flex-col gap-2 rounded-md border-[1px] border-green bg-black p-2">
-              {item.output && Object.keys(item.output).length > 0 ? (
-                <Accordion type="single" collapsible>
-                  {formatJson(item.output).success ? (
-                    formatJson(item.output).issues.map(
-                      (issue: any, index: number) => (
-                        <AccordionItem
-                          className="rounded-md bg-white px-1"
-                          key={index}
-                          value={index.toString()}
-                        >
-                          <AccordionTrigger className="flex flex-row">
-                            <span className="flex w-1/2">
-                              Line: {issue.lineno}
-                            </span>
-                            <span className="flex w-1/2">
-                              Severity: {issue.severity}
-                            </span>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            {issue.title && (
-                              <>
-                                <p className="pb-[5px] text-15 font-semibold text-black">
-                                  Title
-                                </p>
-                                <p className="pr-2 text-14 font-normal text-black">
-                                  {issue.title}
-                                </p>
-                                <div className="my-[15px] h-[1px] w-full bg-black"></div>
-                              </>
-                            )}
-                            {issue.description && (
-                              <>
-                                <p className="pb-[5px] text-15 font-semibold text-black">
-                                  Description
-                                </p>
-                                <p className="pr-2 text-14 font-normal text-black">
-                                  {issue.description}
-                                </p>
-                                <div className="my-[15px] h-[1px] w-full bg-black"></div>
-                              </>
-                            )}
-
-                            {issue.code && (
-                              <>
-                                <p className="pb-[5px] text-15 font-semibold text-black">
-                                  Code
-                                </p>
-                                <p className="text-14 font-normal text-black">
-                                  {issue.code}
-                                </p>
-                                <div className="my-[15px] h-[1px] w-full bg-black"></div>
-                              </>
-                            )}
-
-                            {issue.function && (
-                              <>
-                                <p className="pb-[5px] text-15 font-semibold text-black">
-                                  Function
-                                </p>
-                                <p className="text-14 font-normal text-black">
-                                  {issue.function}
-                                </p>
-                              </>
-                            )}
-                          </AccordionContent>
-                        </AccordionItem>
-                      )
-                    )
-                  ) : (
-                    <div>
-                      <p className="text-15 text-white">
-                        {formatJson(item.output).error}
-                      </p>
-                    </div>
-                  )}
-                </Accordion>
+              {value === "mythril" ? (
+                <>
+                  {/* @ts-ignore */}
+                  <MythrilScanResult data={item.mythril} />
+                </>
+              ) : value === "slither" ? (
+                <>
+                  {/* @ts-ignore */}
+                  <SlitherScanResult data={item.slither} />
+                </>
               ) : (
-                <div className="text-16 font-semibold text-white">
-                  No issues found.
-                </div>
+                <>
+                  <ChatgptScanResult data={item.chatgpt} />
+                </>
               )}
             </div>
           </TabsContent>

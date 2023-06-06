@@ -18,6 +18,7 @@ type tabs = {
 let tabs = [
   { id: "/dashboard", label: "Dashboard" },
   { id: "/dashboard/new", label: "Add new" },
+  { id: "/dashboard/nft", label: "NFT gallery" },
   { id: "/dashboard/single", label: "Single file" },
 ] as tabs[];
 
@@ -62,18 +63,21 @@ const HeaderDashboard = ({}: HeaderDashboardProps) => {
           ))}
         </div>
         <div className="col-span-1 flex  text-white">
-          <MetaMask />
-          <button
-            onClick={async () => {
-              fetchWithCredentials("http://localhost:3000/auth/logout", {
-                method: "POST",
-              });
-              window.location.href = "/";
-            }}
-            className="ml-auto rounded-md bg-white px-1 py-[4px] text-black"
-          >
-            Logout
-          </button>
+          <div className="ml-auto">
+            {" "}
+            <MetaMask />
+            <button
+              onClick={async () => {
+                fetchWithCredentials("http://localhost:3000/auth/logout", {
+                  method: "POST",
+                });
+                window.location.href = "/";
+              }}
+              className=" rounded-md bg-white px-1 py-[4px] text-black"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </nav>
     </div>
