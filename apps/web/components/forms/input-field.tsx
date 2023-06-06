@@ -201,7 +201,7 @@ const InputFile = () => {
         </InViewFadeIn>
       </div>
       {data && (
-        <div className="mx-10 mt-4 flex flex-col gap-2 rounded-md border-[1px] border-green bg-black p-2">
+        <section className="mx-10 mt-4 flex flex-col gap-2 rounded-md border-[1px] border-green bg-black p-2">
           {!data && loading && (
             <div className="flex flex-col items-center">
               <Loader2 className="mx-auto h-2 w-2 animate-spin" />
@@ -213,7 +213,7 @@ const InputFile = () => {
             <SlitherScanResultSingle data={data.data} />
           )}
           {data && value === "mythril" && <MythrilScanResult data={data} />}
-        </div>
+        </section>
       )}
     </>
   );
