@@ -58,7 +58,7 @@ export class FileController {
     })
   )
   async analyzeSingleFileSlither(@UploadedFile() file: Express.Multer.File) {
-    const contractsDir = "contracts"
+    const contractsDir = `${process.cwd()}/uploads`
     const result = await this.fileService.createContainer(file.filename, contractsDir);
     return { data: result };
   }

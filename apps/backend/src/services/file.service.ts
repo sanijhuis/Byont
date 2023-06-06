@@ -83,8 +83,6 @@ export class FileService {
           logs.on('end', async () => {
             const output = this.removeNonPrintableChars(logsData);
             console.log('output with no characters', output);
-            const GPTResponse = await parseOutput(output, this.configService);
-            console.log('GPTResponse', GPTResponse);
 
             // Push the result into the scanOutputItemsData array
             scanOutputItemsData.push({
@@ -170,18 +168,18 @@ export class FileService {
         repoName,
         userId!
       );
-
+      let counter = 0;
       for (const item of scanOutputItemsData) {
 
         const scanOutputItems = await this.prisma.scanOutputItem.findMany({
           orderBy: {
             id: 'desc'
           },
-          take: 1
+          take: scanOutputItemsData.length
         })
-        
+
         if (scanOutputItems.length > 0) {
-          const scanOutputId = scanOutputItems[0].id;
+          const scanOutputId = scanOutputItems[counter].id;
         
           await this.prisma.scanOutputItem.update({
             data: {
@@ -191,6 +189,10 @@ export class FileService {
                 id: scanOutputId
             }
           });
+          const chatGptOutput = await this.parseChatGPT(scanOutputItems[counter].id)
+          console.log(chatGptOutput);
+          counter++
+          
         }
       }
     } catch (err) {
@@ -198,12 +200,37 @@ export class FileService {
     }
   }
 
+
+  async parseChatGPT(scanId: number) {
+
+
+    const chatGptInput = await this.prisma.scanOutputItem.findMany({
+      where: {
+        id: scanId
+      }
+    })
+
+    console.log( "chatGpt", JSON.stringify(chatGptInput));
+    const stringifiedChatGptInput = JSON.stringify(chatGptInput);
+    const chatGptOutput = await parseOutput(stringifiedChatGptInput, this.configService)
+    
+    await this.prisma.scanOutputItem.update({
+      data: {
+        chatgpt: chatGptOutput
+      },
+      where: {
+        id: scanId
+      }
+    })
+    return chatGptOutput
+  }
+
   async createContainer(filename: string, contractsDir: string) {
     const container = await this.docker.createContainer({
       Image: 'trailofbits/eth-security-toolbox',
       Tty: true,
       HostConfig: {
-        Binds: [`${process.cwd()}/uploads:/mnt`],
+        Binds: [`${contractsDir}:/mnt`],
       },
     });
 
@@ -212,9 +239,6 @@ export class FileService {
 
     await this.execDeleteFile(filename, container);
     const data = await this.execAnalyzeFile(filename, container);
-    console.log(data);
-    //await parseOutput(data, this.configService)
-    //console.log('GigaChatGPT', data)
 
     return data;
   }
@@ -360,8 +384,6 @@ export class FileService {
         try {
           const output = this.removeNonPrintableChars(logsData);
           console.log('output with no characters', output);
-          //const GPTResponse = await parseOutput(output, this.configService);
-          //console.log('GPTResponse', GPTResponse);
           resolve(output);
         } catch (err) {
           reject(err);
