@@ -10,11 +10,11 @@ export class ScanResultController {
     return this.scanResultService.getScanOutputsByRepoName(repoName);
   }
 
-  // @Get(':repoName/:id')
-  // async getScanResultByRepoNameAndId(
-  //   @Param('repoName') repoName: string,
-  //   @Param('id') id: number
-  // ) {
-  //   return this.scanResultService.getScanOutputByRepoNameAndId(repoName, id);
-  // }
+  @Get(':repoName/:id')
+  async getScanResultByRepoNameAndId(
+    @Param('repoName') repoName: string,
+    @Param('id') id: number
+  ) {
+    return this.scanResultService.getScanOutputByRepoNameAndId(repoName, id);
+  }
 }
