@@ -44,7 +44,7 @@ model ScanOutputItem {
   filename     String
   slither      Json?
   mythril      Json?
-  chatgpt      Json?
+  chatgpt      String?
 }
 
 enum Scanner {
