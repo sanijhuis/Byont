@@ -20,10 +20,8 @@ const ListRepoActive = ({ grid }: Props): JSX.Element => {
 
   useEffect(() => {
     getData().then((res: Repo[]) => {
-      console.log(res);
       const filteredRepos = res.filter((repo: Repo) => repo.hasWebhook);
       setRepos(filteredRepos);
-      console.log(repos);
     });
   }, []);
 

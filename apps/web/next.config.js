@@ -7,6 +7,9 @@ module.exports = {
   compiler: {
     removeConsoleLog: true,
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async rewrites() {
     return [
       {

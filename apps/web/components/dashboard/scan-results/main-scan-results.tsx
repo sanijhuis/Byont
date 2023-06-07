@@ -52,7 +52,7 @@ const MainScanResults = ({ slug, ...props }: MainScanResultsProps) => {
         setChecked(true);
       }
     });
-  }, []);
+  }, [slug]);
 
   useEffect(() => {
     console.log(data);

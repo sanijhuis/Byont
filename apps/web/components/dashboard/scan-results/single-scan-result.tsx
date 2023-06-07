@@ -127,7 +127,7 @@ const SingleScanResult = ({ id, param, ...props }: SingleScanResultsProps) => {
         }
       }
     });
-  }, [id]);
+  }, [id, param]);
 
   if (!data) return <LoadingIcon />;
 
