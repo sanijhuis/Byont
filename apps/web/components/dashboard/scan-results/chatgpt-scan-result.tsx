@@ -1,5 +1,5 @@
 const ChatgptScanResult = ({ data }: any) => {
-  const sections = data.split("\n\n");
+  const sections = data?.split("\n\n") || ["", "", ""];
   const slitherErrors = sections[1];
   const mythrilIssues = sections[2];
 

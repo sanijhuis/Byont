@@ -27,8 +27,6 @@ const MintNFTComponent = ({
   const { toast } = useToast();
   const router = useRouter();
 
-  console.log(name, json);
-
   const web3 = new Web3(window.ethereum);
 
   console.log(web3);
@@ -80,7 +78,9 @@ const MintNFTComponent = ({
   }
 
   const onMintClick = async () => {
-    const ipfsResult = await saveFile(json);
+    const ipfsResult = await saveFile(jsonOutput);
+
+    console.log(name);
 
     console.log(ipfsResult);
     console.log(ipfsResult.path);
@@ -88,7 +88,7 @@ const MintNFTComponent = ({
 
     const svg = `<svg height="500" width="500" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet" style="background:black;">
   <rect width="100%" height="100%" fill="none" stroke="#C5EE53" stroke-width="5"/>
-  <text x="250" y="220" text-anchor="middle" fill="white" style="font-size:40px; font-weight: 800;">${name}</text>
+  <text x="250" y="220" text-anchor="middle" fill="white" style="font-size:40px; font-weight: 800;">${nameOutput}</text>
   <text x="250" y="250" text-anchor="middle" fill="white" style="font-size:20px; font-weight: 500;">${level}</text>
   <text x="250" y="480" text-anchor="middle" fill="white" style="font-size:15px; font-weight: 400;">${date}</text>
 </svg>
