@@ -4,9 +4,6 @@ module.exports = {
   experimental: {
     appDir: true,
   },
-  compiler: {
-    removeConsoleLog: true,
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },
